@@ -1,0 +1,30 @@
+{
+    "name": "risk-assessment-app",
+    "version": "5.5.5",
+    "description": "Risk Assessment Application v5.2.1",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder"
+    },
+    "author": "hguyswow",
+    "license": "ISC",
+    "dependencies": {
+        "xlsx": "^0.18.5"
+    },
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^24.9.1"
+    },
+    "build": {
+        "appId": "com.hguyswow.riskassessment",
+        "productName": "RiskAssessmentPro",
+        "directories": {
+            "output": "dist"
+        },
+        "win": {
+            "target": "nsis",
+            "icon": "icon.ico"
+        }
+    }
+}

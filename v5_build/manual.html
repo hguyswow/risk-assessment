@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>위험성 평가서 생성기 사용 가이드</title>
+    <style>
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f6f8;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #00875A;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #17a2b8;
+            border-left: 5px solid #17a2b8;
+            padding-left: 10px;
+            margin-top: 40px;
+            background-color: #e8f4f8;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        h3 {
+            color: #16a085;
+            margin-top: 25px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .step-box {
+            background-color: white;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .tip {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-style {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>위험성 평가서 생성기 사용 가이드 (v5.5.5)</h1>
+
+    <div class="step-box" style="background-color: #f8fafc; border-color: #cbd5e1; padding: 25px;">
+        <h2 style="margin-top: 0; border: none; background: none; padding-left: 0; color: #1e293b; font-size: 1.5em; display: flex; align-items: center; gap: 8px;">
+            <span>🛡️</span> 위험성평가 관리 시스템 (v5.5.5) 안내
+        </h2>
+        <p style="font-size: 1.05em; color: #475569; line-height: 1.7; margin-bottom: 20px;">
+            안녕하세요! 현장의 안전을 책임지시는 안전관리자님. <br>
+            본 프로그램은 건설 현장에서 매주, 매달 반복적으로 요구되는 복잡한 <strong>위험성평가 보고서 작성 업무를 획기적으로 자동화</strong>하기 위해 개발된 스마트 안전 행정 시스템입니다. 1,700여 개의 철저히 검증된 실무 데이터베이스와 하이테크 인공지능(AI) 엔진을 기반으로 설계되어, 단 몇 번의 마우스 클릭만으로도 법적 기준에 완벽히 부합하는 전문가 수준의 문서를 손쉽게 완성할 수 있습니다.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px;">
+            <!-- 개발 목적 및 필요성 -->
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 6px; font-size: 1.15em;">
+                    🎯 개발 목적 및 필요성
+                </h3>
+                <ul style="padding-left: 20px; margin: 10px 0 0 0; font-size: 0.95em; color: #475569; line-height: 1.6;">
+                    <li style="margin-bottom: 8px;"><strong>행정 업무 효율화</strong>: 산업안전보건법 제36조에 의거한 의무 서류 작성으로 인한 고질적인 야근 및 피로도를 대폭 경감시킵니다.</li>
+                    <li style="margin-bottom: 8px;"><strong>실질적 위험 발굴 집중</strong>: 형식적인 서류 타이핑에 낭비되던 시간을 돌려받아, 실제 현장 위험 요인을 점검하고 조치하는 실질적 안전 관리에 집중할 수 있게 돕습니다.</li>
+                    <li><strong>다국어 근로자 소통 강화</strong>: 현장 내 외국인 근로자 비율이 급증함에 따라 현지어로 번역된 공인 수준의 안전보건 대책 자료를 실시간으로 확보해 즉각 전달하기 위함입니다.</li>
+                </ul>
+            </div>
+
+            <!-- 프로그램 차별화 장점 -->
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #059669; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 6px; font-size: 1.15em;">
+                    💎 차별화된 핵심 장점
+                </h3>
+                <ul style="padding-left: 20px; margin: 10px 0 0 0; font-size: 0.95em; color: #475569; line-height: 1.6;">
+                    <li style="margin-bottom: 8px;"><strong>시간 혁신 (4시간 -> 5분)</strong>: 고품질 프리셋 데이터 및 AI 일괄 생성을 통해 수십 장 분량의 보고서를 5분 내로 작성 및 인쇄 조판합니다.</li>
+                    <li style="margin-bottom: 8px;"><strong>로컬 LLM (오프라인 지원)</strong>: 인터넷 연결이 차단된 사내 보안망에서도 <strong>LM Studio 로컬 API</strong>를 연동해 별도의 API 키 구매나 사용료 없이 무제한으로 안전하게 위험 요인을 자동 생성할 수 있습니다.</li>
+                    <li><strong>완벽한 데이터 무결성 보존</strong>: 다국어 번역 시에도 한국어 원본 데이터베이스는 브라우저 내부 IndexedDB에 철저히 보호되며, 오직 가상 렌더링 영역에서만 번역본 출력을 조판하므로 데이터 손상이 전혀 없습니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 핵심 탑재 기능 특징 -->
+        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; color: #0f766e; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 6px; font-size: 1.15em;">
+                ⚡ 핵심 시스템 기능 특징
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; font-size: 0.95em; color: #475569; line-height: 1.6;">
+                <div>
+                    <p style="margin: 0 0 8px 0;"><strong>🤖 지능형 AI 위험성 자동 생성기</strong><br>공사 종류, 하위 공종, 현장의 특수한 사용자 추가 고려사항을 종합적으로 결합 분석하여 맞춤형 정교한 개선 대책을 실시간으로 수립합니다.</p>
+                    <p style="margin: 0;"><strong>🌐 실시간 진행률(%) 표기 청크 번역</strong><br>안전 문서를 영어, 중국어, 베트남어, 몽골어로 번역할 때 3행씩 나누어 순차 번역(Chunk)하여, 번역 누락을 차단하고 툴팁에 실시간 번역 진행 상태(%)를 보여줍니다.</p>
+                </div>
+                <div>
+                    <p style="margin: 0 0 8px 0;"><strong>🗳️ 대화식 결합형 역질문 (Q&A)</strong><br>입력된 현장 정보의 밀도가 낮을 때 AI가 상황별로 객관식(체크박스 다중선택) 및 주관식 되묻기 질문을 실시간 자동 생성하여 최상위 정밀도의 안전대책 도출을 유도합니다.</p>
+                    <p style="margin: 0;"><strong>🖨️ Chromium 인쇄 방어 엔진</strong><br>여러 페이지 인쇄 시 Chromium 브라우저에서 가로선(Border)이 깨지거나 잘려 나가는 고질적 렌더링 버그를 rowspan 우회 및 조판 미디어 쿼리를 통해 원천 방어합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-box">
+        <h2>STEP 1. 기본 정보 입력하기</h2>
+        <p>프로그램을 시작하면 가장 먼저 상단의 입력칸을 확인하세요.</p>
+        <ol>
+            <li><strong>현장명:</strong> 현재 공사 중인 현장의 이름을 입력합니다. (예: OO 아파트 신축공사)</li>
+            <li><strong>작성일:</strong> 보고서에 들어갈 날짜를 선택합니다.</li>
+            <li><strong>평가종류:</strong> <strong>[📋 평가종류]</strong> 버튼을 클릭하여 나타나는 모달 창에서 최초, 정기, 수시, 상시 등을 선택하거나 직접 종류를 입력할 수 있습니다.</li>
+        </ol>
+        <div class="tip">
+            💡 <strong>데이터 백업 팁:</strong> 
+            <br>1) <strong>[💾 저장(DB)]:</strong> 화면 최하단의 이 버튼을 누르면 현재 작업 상태가 브라우저 내부에 즉시 저장되어 새로고침해도 안전합니다.
+            <br>2) <strong>[📤 내보내기(DB)]:</strong> 파일 이름을 직접 지정하여 프로젝트 전체를 내 PC에 .json 파일로 영구 백업할 수 있습니다. 백업된 파일은 상단의 <strong>[📂 불러오기]</strong>로 언제든 복구 가능합니다.
+        </div>
+    </div>
+
+    <div class="step-box">
+        <h2>STEP 2. 공종 및 위험요인 선택/커스터마이징 (UI 개선 ✨)</h2>
+        <p>화면 중앙의 트리 메뉴에는 다양한 공종과 위험 요인들이 정리되어 있습니다. v5.4.4 업데이트를 통해 메뉴 직관성과 사용 편의성이 대폭 상향되었습니다.</p>
+
+        <h3>새로운 하단 메뉴 버튼 활용하기</h3>
+        <ul>
+            <li><strong>➕ 새 공종 추가:</strong> 우리 현장에만 있는 특수한 대분류 공종이 필요하다면 이 버튼을 눌러 자유롭게 추가하세요.</li>
+            <li><strong>💾 공종 저장:</strong> 새로 추가한 공종, 선택한 항목 등 현재까지 작업한 내용을 브라우저 내부 데이터베이스에 명시적으로 안전하게 저장합니다. (새로고침해도 날아가지 않습니다!)</li>
+            <li><strong>☑️ 전체 선택 / 🗑️ 전체 선택 해제:</strong> 클릭 한 번으로 수백 개의 전체 위험요인을 단번에 체크하거나 해제할 수 있습니다.</li>
+            <li><strong>✏️ 선택 완료 및 편집하기:</strong> 원하는 항목에 체크를 완료한 뒤 누르면 다음 편집 단계로 넘어갑니다.</li>
+        </ul>
+
+        <h3>항목 세부 추가 (트리 내부)</h3>
+        <ol>
+            <li>진행 중인 작업(예: 가설공사, 철근공사 등) 왼쪽의 <strong>[▶]</strong> 버튼을 눌러 하위 요인들을 펼칩니다.</li>
+            <li>만약 원하는 위험요인이 없다면, 각 항목 우측에 있는 <strong>[➕ 세부작업 추가], [➕ 위험세분류], [➕ 위험요인]</strong> 버튼을 눌러 내가 원하는 내용을 직접 무한히 추가할 수 있습니다.</li>
+            <li>우리 현장에 해당하는 위험 요인을 찾아 <span class="highlight">체크박스(☑️)를 클릭</span>하세요.</li>
+        </ol>
+    </div>
+
+    <div class="step-box" style="border-left: 5px solid #6366f1;">
+        <h2 style="color: #6366f1; border-left: none; padding-left: 0; background-color: #f5f3ff; border-radius: 5px; padding: 10px;">STEP 2-1. 🤖 AI 위험성평가 자동 생성 및 관리 (v5.5.5 개편 및 번역 고도화 ✨)</h2>
+        <p>수동 선택이 번거롭다면, 화면 상단 우측 of <strong style="color:#6366f1;">[🤖 AI 생성]</strong> 버튼을 눌러 인공지능 안전 분석 시스템을 이용해 보고서를 자동으로 생성해 보세요.</p>
+        
+        <h3>1) 현장 정보 프리셋 템플릿 관리</h3>
+        <ul>
+            <li><strong>템플릿 저장 (v5.5.3 보완 🛠️):</strong> 기존의 '주요 작업 내용' 필드가 대분류 아래의 구체적인 공정 구역을 명시하는 <strong>하위 공종 *</strong>으로 성격이 명확해지고, 실제 현장에서 수행할 디테일한 작업 묘사를 적을 수 있는 <strong>주요 작업 내용 *</strong> 필수 입력란이 새롭게 분리 신설되었습니다. 현장 정보 입력 후 <strong>[💾 템플릿 저장]</strong> 버튼을 클릭해 이름을 지정해 등록하면, 자동으로 <code>[공사종류] 하위공종</code> (예: [건축공사] 습식공사) 형태로 템플릿 명칭이 지능형 자동 추천 제안됩니다. (※ v5.5.3 버전에서는 템플릿 저장 모달 창이 AI 모달 최상단에 확실하게 뜨도록 쌓임 맥락을 통합했으며, Electron 환경에서 팝업이 뒤로 숨는 버그를 방지하기 위해 경고 alert() 창을 수려한 토스트 메시지로 전면 개선했습니다.)</li>
+            <li><strong>템플릿 불러오기:</strong> 다음 작업 시에는 드롭다운 목록에서 저장했던 프리셋을 선택하여 이전 현장 정보를 1초 만에 그대로 불러와 재활용할 수 있습니다.</li>
+        </ul>
+
+        <h3>2) 다중 API Key 저장 서랍 및 자동 롤오버(Failover)</h3>
+        <ul>
+            <li>AI 설정 탭 내부의 <strong>[🔑 API Key 저장 서랍]</strong> 버튼을 클릭하여 다수의 Gemini 또는 DeepSeek API Key들을 저장할 수 있습니다.</li>
+            <li><strong>무중단 롤오버:</strong> 등록된 여러 개의 API Key는 순차적으로 사용되며, 하나의 키가 일일 한도(Quota 429 Error)에 도달할 경우 <strong>대기 시간 없이 즉시 다음 API Key로 자동 전환(Failover)</strong>되어 대량의 위험성평가서도 끊김 없이 완성됩니다.</li>
+            <li><strong>로컬 LLM (LM Studio) 연동 (v5.5.1 신규 ✨):</strong> AI 프로바이더 목록에서 <strong>LM Studio (로컬 LLM)</strong>를 선택하면, 별도의 API Key 없이 로컬 호스트 엔드포인트(<code>http://localhost:1234/v1</code>)를 통해 오프라인 환경에서도 로컬 AI 모델을 이용해 무료 및 무제한으로 고속 자동 생성을 수행할 수 있습니다.</li>
+            <li><strong>생성 텍스트 글자수 세부 제한 (v5.5.2 신규 ✨):</strong> AI 설정 탭 하단에서 <strong>유해위험요인 최대 글자수</strong> 및 <strong>개선대책(감소대책) 최대 글자수</strong>를 직접 지정할 수 있습니다. (추천 수치: 유해위험요인 50자, 개선대책 100자 기본 제안) 이 수치 제한은 AI 프롬프트에 동적으로 연결되어 결과물의 텍스트 길이가 보고서 조판 가로 폭을 넘어가 양식이 흐트러지는 현상을 사전에 정교하게 예방해 줍니다.</li>
+        </ul>
+
+        <h3>3) 능동형 역질문 및 7단 양식 매핑</h3>
+        <ul>
+            <li><strong>사용자 추가 고려사항 (선택사항):</strong> 현장 정보 입력 탭에 추가 고려사항을 입력할 수 있어, 지하수위나 옹벽 등의 특이사항을 적어주시면 AI가 이를 우선 반영하여 아주 정교하고 밀착된 위험성평가서를 제안합니다.</li>
+            <li><strong>대화형 되묻기 및 객관식 문답 (v5.5.4 업그레이드 🚀):</strong> 사용자가 입력한 정보가 빈약할 때 작동하는 역질문 기능이 업그레이드되었습니다. <strong>[AI 재질문(Q&A) 활성화]</strong> 체크박스를 통해 기능을 켜거나 끌 수 있으며, 질문 수령 시 복수 선택이 가능한 <strong>체크박스형 객관식 문답</strong>과 <strong>자유 서술형 주관식 문답</strong>이 상황에 맞게 렌더링되어 빠르고 편리하게 고신뢰 답변을 수집합니다.</li>
+            <li><strong>최종 매핑:</strong> 완성된 안전 평가는 7단 정식 양식에 맞춰 자동으로 공종명과 안전 분류를 지능적으로 분석하여 편집 화면의 <strong>"🤖 AI 자동생성"</strong> 카테고리에 안전하게 자동 삽입됩니다.</li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <h2>STEP 3. 빈도/강도법 기반 위험성 평가 및 편집</h2>
+        <p>선택한 항목들을 바탕으로 실제 표 형식의 편집 화면이 나타납니다. 기존의 복잡한 숫자 곱셈법에서 벗어나, 직관적인 <strong>'상·중·하' 빈도/강도법</strong>으로 쉽게 평가합니다.</p>
+
+        <h3>주요 편집 기능</h3>
+        <ul>
+            <li><strong>내용 수정:</strong> 표 안의 '위험발생상황'이나 '감소대책' 내용이 현장과 맞지 않다면, 칸을 마우스로 클릭하여 엑셀처럼 자유롭게 글자를 수정할 수 있습니다.</li>
+            <li><strong>🪄 AI 부분 재생성 (v5.5.0 신규 ✨):</strong> 각 셀 우측의 요술봉(🪄) 버튼을 클릭하면, 사용자가 직접 수정한 상위 텍스트 정보를 자동으로 읽어 들여 해당 셀 및 하위 필드들까지 문맥에 맞게 지능적으로 자동 연쇄 재생성해 줍니다.</li>
+            <li><strong>위험성 평가 (상/중/하):</strong> 각 항목별 '현재 위험성'과 '개선 후 위험성'을 드롭다운으로 쉽게 선택하세요. <em>(개선 후 위험성은 현재 위험성보다 높을 수 없도록 시스템이 방어합니다!)</em></li>
+            <li><strong>일괄 적용 기능:</strong> 상단의 <span class="btn-style" style="background:#667eea; color:white;">일괄 적용</span> 버튼을 누르면, 수십~수백 개의 항목을 한 번에 특정 등급(예: 중)으로 통일하거나 공통적인 감소대책 문구를 일괄 삽입할 수 있어 퇴근 시간이 획기적으로 당겨집니다.</li>
+        </ul>
+        <div class="tip">
+            💡 <strong>참고:</strong> 기존에 있던 엑셀 다운로드 기능은 현재 양식 최적화 및 템플릿 고도화 작업을 위해 v5.4.4 버전에서 임시 제외되었습니다. 향후 더 강력한 기능으로 재도입될 예정입니다!
+        </div>
+    </div>
+
+    <div class="step-box">
+        <h2>STEP 4. 서명선 설정 및 도장 삽입</h2>
+        <p>보고서의 꽃, 서명 도장을 꾸며봅시다! 상단의 <span class="btn-style" style="background:#17a2b8; color:white;">🖊️ 서명설정</span> 버튼을 눌러보세요.</p>
+        <ol>
+            <li><strong>결재 인원 선택:</strong> 결재받을 사람이 몇 명인지(2칸~5칸) 선택합니다.</li>
+            <li><strong>직책/성명 입력:</strong> 담당자, 소장 등의 직책과 성명을 직접 적습니다.</li>
+            <li><strong>서명 이미지 삽입:</strong>
+                <ul>
+                    <li>이름 아래 네모 박스를 클릭하여 <strong>도장/서명 파일(사진)</strong>을 컴퓨터에서 불러오거나,</li>
+                    <li>이미지를 복사(Ctrl+C)한 뒤, 박스 안 <span class="btn-style">붙여넣기</span> 버튼을 눌러 즉시 삽입하세요.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="step-box">
+        <h2>STEP 5. 최종 보고서 생성 및 출력</h2>
+        <ol>
+            <li>화면 맨 하단의 <span class="btn-style" style="background:#dc3545; color:white;">📄 최종 보고서 생성</span> 버튼을 누르면 깔끔하게 인쇄용으로 조판된 화면이 나타납니다.</li>
+            <li>우측 상단의 <span class="btn-style" style="background:#f8f9fa; border:1px solid #ddd;">🖨️ 브라우저 인쇄 (PDF 저장 가능)</span> 버튼을 눌러 종이로 출력하거나, 프린터 대상을 'PDF로 저장'으로 변경하여 결재 서류로 바로 활용하세요!</li>
+        </ol>
+        <p>오늘도 여러분의 야근 시간이 조금이나마 줄어들었기를 바랍니다. 수고하셨습니다!</p>
+    </div>
+
+    <div class="step-box" style="border-left: 5px solid #22c55e;">
+        <h2 style="color: #16a34a; border-left: none; padding-left: 0; background-color: #f0fdf4; border-radius: 5px; padding: 10px;">STEP 5-1. 🌐 AI 다국어 번역 및 독립 인쇄 (v5.5.5 고도화 ✨)</h2>
+        <p>외국인 근로자가 많은 현장을 위해 위험성평가서 내용을 <strong>영어, 중국어, 베트남어, 몽골어</strong>로 즉시 일괄 번역하여 출력할 수 있습니다.</p>
+        <ol>
+            <li><strong>번역 언어 선택:</strong> 최종 보고서 미리보기 화면 상단 액션 버튼부 우측의 <code>🌐 다국어 번역</code> 드롭다운에서 원하는 언어(영어/중국어/베트남어/몽골어)를 선택합니다.</li>
+            <li><strong>번역 실행:</strong> <strong>[번역 실행]</strong> 버튼을 누르면 인공지능 안전보건 번역 엔진이 작동합니다.</li>
+            <li><strong>실시간 진행률(%) 표시:</strong> 번역 진행 상황이 화면 전체 로딩창에 <code>🌐 다국어 번역 중... (33%)</code>과 같이 퍼센티지(%)로 실시간 갱신되어 진행 상태를 한눈에 파악할 수 있습니다. (3행 단위 순차 청크 번역 적용)</li>
+            <li><strong>독립 출력 및 원본 보존:</strong> 번역본은 임시 캐시에만 보관되며, <strong>한국어 원본 데이터는 절대 훼손되지 않습니다.</strong> 번역이 완료된 상태에서 인쇄를 누르면 번역서 그대로 깔끔하게 PDF 저장 및 인쇄가 가능합니다.</li>
+            <li><strong>몽골어 번역 완벽 연동:</strong> 몽골어 선택 시 위험 등급 '하'가 몽골어 표준 번역어인 <code>Бага</code>로 올바르게 치환되며, 표지 대상명과 대분류 공종명까지 정교하게 몽골어로 번역 치환되어 출력됩니다.</li>
+        </ol>
+    </div>
+
+    <footer>
+        <!-- [기존 코드 보존]
+        <p><strong>Developed by Anti-Gravity (Minos)</strong> | Version 5.5.5</p>
+        <div style="margin-top: 20px; background-color: #f0f8ff; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #cce5ff;">
+            <p style="margin: 0 0 10px 0; font-weight: bold; color: #0056b3; font-size: 1.1em;">😊 반복 업무 탈출을 축하합니다!</p>
+            <p style="margin: 5px 0; font-size: 0.95em;">매일 반복되는 서류 작업에서 해방되셨다면,<br>개발자가 더 좋은 기능을 만들 수 있도록 시원한 커피 한 잔을 선물해주세요!</p>
+            <div style="margin-top: 15px; padding: 10px; background-color: white; border-radius: 5px; font-weight: bold; color: #2c3e50; border: 1px dashed #aaa;">
+                ☕ 후원 계좌: 국민은행 027210862460 강*호
+            </div>
+        </div>
+        -->
+        <p><strong>Developed by Minos Agent</strong> (<a href="https://github.com/hguyswow" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: bold;">GitHub @hguyswow</a>) | Version 5.5.5</p>
+        <div style="margin-top: 20px; background-color: #f0f8ff; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #cce5ff;">
+            <p style="margin: 0 0 10px 0; font-weight: bold; color: #0056b3; font-size: 1.1em;">😊 반복 업무 탈출을 축하합니다!</p>
+            <p style="margin: 5px 0; font-size: 0.95em;">매일 반복되는 서류 작업에서 해방되셨다면,<br>개발자가 더 좋은 기능을 만들 수 있도록 시원한 커피 한 잔을 선물해주세요!</p>
+            <div style="margin-top: 15px; padding: 12px 20px; background-color: white; border-radius: 5px; font-weight: bold; color: #2c3e50; border: 1px dashed #aaa; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; justify-content: center;">
+                <div>☕ 국내 후원 계좌: 국민은행 027210862460 강*호</div>
+                <div style="font-size: 0.95em; color: #4f46e5; display: flex; align-items: center; gap: 4px;">
+                    🌐 해외 후원 (PayPal): <a href="https://paypal.me/hguyswow" target="_blank" style="color: #4f46e5; text-decoration: underline; font-weight: bold;">paypal.me/hguyswow</a>
+                </div>
+            </div>
+        </div>
+        <!-- [기존 코드 보존]
+        <p style="margin-top: 20px; font-size: 0.9em; color: #888;">프로그램 피드백 및 기능 제안: <strong>hguyswow@gmail.com</strong></p>
+        -->
+        <p style="margin-top: 20px; font-size: 0.9em; color: #888; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;">
+            <span>📧 프로그램 피드백 및 기능 제안: <strong>hguyswow@gmail.com</strong></span>
+            <span>🌐 PayPal 후원: <a href="https://paypal.me/hguyswow" target="_blank" style="color: #6366f1; text-decoration: underline; font-weight: bold;">paypal.me/hguyswow</a></span>
+        </p>
+    </footer>
+
+    <script>
+        // Electron 환경에서 target="_blank" 외부 링크 클릭 시 시스템 기본 외부 웹 브라우저로 새 창 열기
+        if (typeof require !== 'undefined') {
+            try {
+                const { shell } = require('electron');
+                document.addEventListener('click', function(e) {
+                    const anchor = e.target.closest('a');
+                    if (anchor && anchor.getAttribute('target') === '_blank') {
+                        e.preventDefault();
+                        shell.openExternal(anchor.href);
+                    }
+                });
+            } catch (err) {
+                console.error("Electron shell API 로드 실패:", err);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

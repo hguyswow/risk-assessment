@@ -1,0 +1,28 @@
+﻿# Node.js
+v5_build/node_modules/
+node_modules/
+
+# Electron-builder distribution output
+v5_build/dist/
+dist/
+
+# Excel data & Temporary files
+*.xlsx
+*.egg
+excel2_extracted.csv
+excel_extracted.csv
+v5_build/temp_index_script.js
+
+# Backup files
+v5_build/*.bak*
+v5_build/*.bak_before_*
+v5_build/index.html.bak*
+v5_build/index.html.bak_broken
+v5_build/index.html.bak_before_*
+v5_build/aiService.js.bak
+backup/
+v5.2.1_backup/
+v5_build_backup/
+v5_build_backup_v5.0/
+v5_build_backup_v5.2/
+v5_build_backup_v5.2.1/
