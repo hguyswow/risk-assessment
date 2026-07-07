@@ -88,11 +88,13 @@
 
 <body>
 
-    <h1>위험성 평가서 생성기 사용 가이드 (v5.5.5)</h1>
+    <!-- [기존 코드 백업] <h1>위험성 평가서 생성기 사용 가이드 (v5.5.7)</h1> -->
+    <h1>위험성 평가서 생성기 사용 가이드 (v5.5.21b)</h1>
 
     <div class="step-box" style="background-color: #f8fafc; border-color: #cbd5e1; padding: 25px;">
         <h2 style="margin-top: 0; border: none; background: none; padding-left: 0; color: #1e293b; font-size: 1.5em; display: flex; align-items: center; gap: 8px;">
-            <span>🛡️</span> 위험성평가 관리 시스템 (v5.5.5) 안내
+            <!-- [기존 코드 백업] <span>🛡️</span> 위험성평가 관리 시스템 (v5.5.7) 안내 -->
+            <span>🛡️</span> 위험성평가 관리 시스템 (v5.5.21b) 안내
         </h2>
         <p style="font-size: 1.05em; color: #475569; line-height: 1.7; margin-bottom: 20px;">
             안녕하세요! 현장의 안전을 책임지시는 안전관리자님. <br>
@@ -144,17 +146,19 @@
     </div>
 
     <div class="step-box">
-        <h2>STEP 1. 기본 정보 입력하기</h2>
-        <p>프로그램을 시작하면 가장 먼저 상단의 입력칸을 확인하세요.</p>
+        <h2>STEP 1. 기본 정보 입력 및 글로벌 제어</h2>
+        <p>프로그램을 시작하면 가장 먼저 상단의 입력 칸 및 도구들을 확인하세요.</p>
         <ol>
-            <li><strong>현장명:</strong> 현재 공사 중인 현장의 이름을 입력합니다. (예: OO 아파트 신축공사)</li>
+            <li><strong>현장명 / 회사명:</strong> 현재 공사 중인 현장 이름 및 소속 회사명을 입력합니다.</li>
             <li><strong>작성일:</strong> 보고서에 들어갈 날짜를 선택합니다.</li>
-            <li><strong>평가종류:</strong> <strong>[📋 평가종류]</strong> 버튼을 클릭하여 나타나는 모달 창에서 최초, 정기, 수시, 상시 등을 선택하거나 직접 종류를 입력할 수 있습니다.</li>
+            <li><strong>평가종류:</strong> <strong>[📋 평가종류]</strong> 버튼을 클릭하여 최초, 정기, 수시, 상시 등을 간편하게 선택할 수 있습니다.</li>
+            <li><strong>🤖 AI 기능 활성화 스위치 (v5.5.15+ 신설):</strong> 버튼 영역 좌측의 체크박스를 해제하면 메인의 <code>[🤖 AI 생성]</code> 버튼이 비활성화되며, 편집 테이블의 각 행별 <code>🪄 AI 부분 재생성</code> 요술봉도 일괄 숨겨져 일반 텍스트 보고서 수동 작성 시의 시각적 노이즈를 완벽하게 차단합니다.</li>
         </ol>
         <div class="tip">
-            💡 <strong>데이터 백업 팁:</strong> 
-            <br>1) <strong>[💾 저장(DB)]:</strong> 화면 최하단의 이 버튼을 누르면 현재 작업 상태가 브라우저 내부에 즉시 저장되어 새로고침해도 안전합니다.
-            <br>2) <strong>[📤 내보내기(DB)]:</strong> 파일 이름을 직접 지정하여 프로젝트 전체를 내 PC에 .json 파일로 영구 백업할 수 있습니다. 백업된 파일은 상단의 <strong>[📂 불러오기]</strong>로 언제든 복구 가능합니다.
+            💡 <strong>데이터 저장 및 자동 복구 시스템:</strong> 
+            <br>1) <strong>⏱️ 30초 무활동 자동 저장 (v5.5.10+):</strong> 위험 요인을 수정하는 도중 30초 동안 아무런 키보드 입력이 감지되지 않으면 유실 방지를 위한 <code>💾 자동 저장</code> 기능이 배경에서 자동으로 실행됩니다.
+            <br>2) <strong>[💾 저장(DB)]:</strong> 화면 최하단의 이 버튼을 누르면 즉시 브라우저 IndexedDB 내부 데이터베이스에 완벽히 안전하게 작업 상태가 박제되어 저장됩니다.
+            <br>3) <strong>[📤 내보내기(DB)] / [📂 불러오기]:</strong> 현재까지 작성한 전체 내용을 PC로 내보내어 <code>.json</code> 백업 파일로 보존하고, 언제든 다시 불러올 수 있습니다.
         </div>
     </div>
 
@@ -179,7 +183,8 @@
     </div>
 
     <div class="step-box" style="border-left: 5px solid #6366f1;">
-        <h2 style="color: #6366f1; border-left: none; padding-left: 0; background-color: #f5f3ff; border-radius: 5px; padding: 10px;">STEP 2-1. 🤖 AI 위험성평가 자동 생성 및 관리 (v5.5.5 개편 및 번역 고도화 ✨)</h2>
+        <!-- [기존 코드 백업] <h2 style="color: #6366f1; border-left: none; padding-left: 0; background-color: #f5f3ff; border-radius: 5px; padding: 10px;">STEP 2-1. 🤖 AI 위험성평가 자동 생성 및 관리 (v5.5.7 개편 및 UI 디자인 전면 고도화 ✨)</h2> -->
+        <h2 style="color: #6366f1; border-left: none; padding-left: 0; background-color: #f5f3ff; border-radius: 5px; padding: 10px;">STEP 2-1. 🤖 AI 위험성평가 자동 생성 및 관리 (v5.5.21b 개편 및 UI 디자인 전면 고도화 ✨)</h2>
         <p>수동 선택이 번거롭다면, 화면 상단 우측 of <strong style="color:#6366f1;">[🤖 AI 생성]</strong> 버튼을 눌러 인공지능 안전 분석 시스템을 이용해 보고서를 자동으로 생성해 보세요.</p>
         
         <h3>1) 현장 정보 프리셋 템플릿 관리</h3>
@@ -202,6 +207,79 @@
             <li><strong>대화형 되묻기 및 객관식 문답 (v5.5.4 업그레이드 🚀):</strong> 사용자가 입력한 정보가 빈약할 때 작동하는 역질문 기능이 업그레이드되었습니다. <strong>[AI 재질문(Q&A) 활성화]</strong> 체크박스를 통해 기능을 켜거나 끌 수 있으며, 질문 수령 시 복수 선택이 가능한 <strong>체크박스형 객관식 문답</strong>과 <strong>자유 서술형 주관식 문답</strong>이 상황에 맞게 렌더링되어 빠르고 편리하게 고신뢰 답변을 수집합니다.</li>
             <li><strong>최종 매핑:</strong> 완성된 안전 평가는 7단 정식 양식에 맞춰 자동으로 공종명과 안전 분류를 지능적으로 분석하여 편집 화면의 <strong>"🤖 AI 자동생성"</strong> 카테고리에 안전하게 자동 삽입됩니다.</li>
         </ul>
+
+        <!-- [ADD] AI 엔진 모델별 API 결제 및 로컬 LLM 설정 방법 상세 가이드 -->
+        <div style="background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin-top: 25px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <h3 style="margin-top: 0; color: #1e293b; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 1.2em;">
+                ⚙️ [상세 가이드] AI 엔진 연동 및 API Key / 로컬 LLM 설정 방법
+            </h3>
+            <p style="font-size: 0.95em; color: #334155; margin-bottom: 15px; line-height: 1.6;">
+                본 프로그램은 다양한 글로벌 AI 엔진 및 인터넷이 차단된 현장 환경을 배려한 로컬 컴퓨터 구동형 인공지능(LLM)을 완벽히 지원합니다. 엔진별 설정 가이드를 확인하여 원하시는 최적의 안전 관리 환경을 구축해보세요.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- 1. DeepSeek API 설정 -->
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                    <h4 style="margin: 0 0 8px 0; color: #0f4c81; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
+                        🐳 DeepSeek API 설정 (강력 추천 🚀)
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #475569; line-height: 1.5;">
+                        현재 자연어 성능 대비 압도적으로 저렴한 단가(Gemini 대비 약 1/10 비용)와 최상위 수준의 한국어 건설 안전 분석 능력을 보여주는 API 서비스입니다.
+                    </p>
+                    <ul style="padding-left: 20px; margin: 0; font-size: 0.88em; color: #475569; line-height: 1.6;">
+                        <li><strong>1단계 (가입 및 API Key 발급)</strong>: <a href="https://platform.deepseek.com/" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">DeepSeek 개발자 플랫폼</a>에 접속 및 가입한 뒤, [API Keys] 메뉴에서 [Create new api key]를 클릭하여 생성하고 복사합니다.</li>
+                        <li><strong>2단계 (크레딧 충전/결제)</strong>: [Top up] 또는 [Finance] 메뉴에서 최소 2$ ~ 5$ 정도의 선불 크레딧을 신용카드로 충전합니다. (한 번 충전 시 수백 장의 위험성평가서를 작성할 만큼 넉넉한 토큰량이 제공됩니다.)</li>
+                        <li><strong>3단계 (프로그램 등록)</strong>: 프로그램 내 AI 설정 탭에서 API 프로바이더를 <code>DeepSeek</code>로 선택한 뒤, 복사한 키를 붙여넣고 사용합니다.</li>
+                    </ul>
+                </div>
+
+                <!-- 2. Google Gemini API 설정 -->
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                    <h4 style="margin: 0 0 8px 0; color: #1e3a8a; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
+                        ♊ Google Gemini API 설정
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #475569; line-height: 1.5;">
+                        기본적으로 빠른 속도와 한국어 문장력이 균형 잡혀 있는 범용 엔진입니다. 무료 기본 제공량(제한적)으로 테스트가 가능합니다.
+                    </p>
+                    <ul style="padding-left: 20px; margin: 0; font-size: 0.88em; color: #475569; line-height: 1.6;">
+                        <li><strong>1단계 (API Key 발급)</strong>: <a href="https://aistudio.google.com/" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">Google AI Studio</a>에 구글 계정으로 로그인한 뒤, [Get API Key] 단추를 클릭해 키를 무료 발급 및 복사합니다.</li>
+                        <li><strong>2단계 (유료 요금제 결제 - 필요 시)</strong>: 사용량이 초과하여 429 한도 에러가 빈번할 경우 구글 클라우드 콘솔의 결제 연동(Pay-as-you-go)을 통해 신용카드를 등록하면 제한 없이 유료 사용이 가능합니다.</li>
+                        <li><strong>3단계 (프로그램 등록)</strong>: 프로그램 내 AI 설정 탭에서 API 프로바이더를 <code>Gemini</code>로 선택하고 복사한 키를 붙여넣습니다.</li>
+                    </ul>
+                </div>
+
+                <!-- 3. Ollama 설정 (로컬 오프라인 구동형) -->
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                    <h4 style="margin: 0 0 8px 0; color: #0d9488; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
+                        🦙 Ollama 오프라인 로컬 LLM 설정 (무료/무제한 🔐)
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #475569; line-height: 1.5;">
+                        인터넷망이 제공되지 않거나 사내 보안 규정상 현장 데이터를 외부 서버로 전송할 수 없을 때 최적입니다. 본인의 고성능 GPU(외장 그래픽카드)를 탑재한 PC 환경이 권장됩니다.
+                    </p>
+                    <ul style="padding-left: 20px; margin: 0; font-size: 0.88em; color: #475569; line-height: 1.6;">
+                        <li><strong>1단계 (다운로드 및 설치)</strong>: <a href="https://ollama.com/" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">Ollama 공식 웹사이트</a>에서 윈도우용 버전을 다운로드하여 설치 및 가동합니다.</li>
+                        <li><strong>2단계 (인공지능 모델 다운로드)</strong>: 명령 프롬프트(cmd) 또는 터미널을 열고 <code>ollama run llama3</code> 또는 <code>ollama run gemma2</code> 명령어를 실행하여 로컬 AI 모델 파일 다운로드를 완수합니다.</li>
+                        <li><strong>3단계 (프로그램 연동)</strong>: 다운로드 완료 시 백그라운드 서버(<code>http://localhost:11434</code>)가 자동 상시 대기하며, 프로그램 AI 설정 탭에서 <code>Ollama</code>를 고르면 별도의 API Key 없이 로컬 AI 생성이 동작합니다.</li>
+                    </ul>
+                </div>
+
+                <!-- 4. LM Studio 설정 (오프라인 GUI 지원형) -->
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                    <h4 style="margin: 0 0 8px 0; color: #7c3aed; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
+                        🎨 LM Studio 오프라인 로컬 LLM 설정 (시각적/무료 🔐)
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #475569; line-height: 1.5;">
+                        시각적인 전용 GUI 앱을 통해 AI 모델 다운로드와 로컬 API 서버 배포 관리를 누구나 편리하게 제어할 수 있는 오픈소스 매니저입니다.
+                    </p>
+                    <ul style="padding-left: 20px; margin: 0; font-size: 0.88em; color: #475569; line-height: 1.6;">
+                        <li><strong>1단계 (다운로드 및 설치)</strong>: <a href="https://lmstudio.ai/" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">LM Studio 공식 홈페이지</a>에 접속해 윈도우용 인스톨러를 다운로드 후 설치 실행합니다.</li>
+                        <li><strong>2단계 (모델 다운로드)</strong>: 좌측 돋보기 모양 메뉴(Search)에서 원하는 모델(예: <code>Llama-3-8B-Instruct-GGUF</code> 또는 <code>EEVE-Korean-10.8B</code> 등)을 검색 후 시스템 GPU 사양에 맞는 크기로 다운로드합니다.</li>
+                        <li><strong>3단계 (로컬 서버 시작)</strong>: 좌측 더블 화살표 모양 메뉴(Local Server)로 가셔서, 상단에서 다운로드한 AI 모델을 선택한 뒤 [Start Server] 버튼을 누릅니다. (기본 포트는 <code>1234</code>로 구동됩니다.)</li>
+                        <li><strong>4단계 (프로그램 등록)</strong>: 프로그램 AI 설정 탭에서 <code>LM Studio (로컬 LLM)</code>를 선택하면, 로컬 호스트(<code>http://localhost:1234/v1</code>)로 중계되어 무료 생성 기능이 즉각 구동됩니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="step-box">
@@ -236,16 +314,35 @@
     </div>
 
     <div class="step-box">
-        <h2>STEP 5. 최종 보고서 생성 및 출력</h2>
-        <ol>
-            <li>화면 맨 하단의 <span class="btn-style" style="background:#dc3545; color:white;">📄 최종 보고서 생성</span> 버튼을 누르면 깔끔하게 인쇄용으로 조판된 화면이 나타납니다.</li>
-            <li>우측 상단의 <span class="btn-style" style="background:#f8f9fa; border:1px solid #ddd;">🖨️ 브라우저 인쇄 (PDF 저장 가능)</span> 버튼을 눌러 종이로 출력하거나, 프린터 대상을 'PDF로 저장'으로 변경하여 결재 서류로 바로 활용하세요!</li>
+        <h2>STEP 5. 최종 보고서 생성 및 세대별 인쇄 테마(Classic, Modern, Future) 선택</h2>
+        <p>화면 맨 하단의 <span class="btn-style" style="background:#dc3545; color:white;">📄 최종 보고서 생성</span> 버튼을 누르면, 깔끔하게 인쇄용으로 조판된 미리보기 화면이 실행됩니다. 여기서 **발주처 또는 감리단의 성향 및 눈치(?)**에 맞춰 최적의 인쇄 테마를 즉시 선택할 수 있습니다.</p>
+        
+        <h3>🖨️ 세대별/성향별 3대 인쇄 조판 테마 (v5.5.8+ 신설)</h3>
+        <ol style="margin-bottom: 15px;">
+            <li style="margin-bottom: 8px;"><strong>Classic (기본형 꼰대 대피소 🛡️)</strong>:
+                <br>가장 보수적인 형태의 폼으로, 정부 부처 산하 기관이나 까다로운 원칙주의자 감리 단체의 검수를 무난히 패스하기 위한 <strong>클래식 흑백 폼</strong>입니다. 출력 시 모든 컬러가 배제되고 깔끔한 흑백 격자 실선으로 렌더링되어 눈치 볼 필요가 전혀 없습니다.
+            </li>
+            <li style="margin-bottom: 8px;"><strong>Modern (세련형 눈 보호 모드 👁️)</strong>:
+                <br>가장 일반적인 민간 대기업 현장이나 세련된 디자인을 선호하는 실무자를 위해 탄생했습니다. 눈이 편안한 **슬레이트 블루(#1e3a5f) 테두리**와 가독성이 뛰어난 폰트 스케일링을 제공합니다.
+            </li>
+            <li style="margin-bottom: 8px;"><strong>Future (미래지향형 진보 모드 🌌)</strong>:
+                <br>MZ세대 및 한 걸음 더 나아간 진보 세대의 취향을 타겟으로 한 미래형 레이아웃입니다. 화사한 **바이올렛(#7c3aed) 및 라벤더(#c4b5fd)** 톤의 그라데이션 기조가 녹아 있어, 전통적인 서류의 패러다임을 깨는 참신한 조판 스타일을 보여줍니다.
+            </li>
         </ol>
-        <p>오늘도 여러분의 야근 시간이 조금이나마 줄어들었기를 바랍니다. 수고하셨습니다!</p>
+
+        <div class="tip" style="margin-top: 15px;">
+            💡 <strong>테마 적용 팁:</strong>
+            <br>1) <strong>자동 테마 복원:</strong> 선택한 인쇄 테마는 브라우저 로컬 저장소에 보존되어, 다음에 문서를 출력할 때도 이전에 골랐던 테마가 기본값으로 자동 기억됩니다.
+            <br>2) <strong>테이블 밀폐 마감:</strong> Modern 및 Future 테마의 경우 내부 격자선은 깔끔한 점선으로 가볍게 표현하면서도, 테이블의 사방 경계면(가장 우측 및 하단 선)은 테마 전용 색상의 굵은 1.5px 실선(Solid)으로 단단하게 밀폐되어 렌더링되므로 인쇄 퀄리티가 대단히 높습니다.
+        </div>
+
+        <p style="margin-top: 15px;">테마를 선택한 뒤, 우측 상단의 <span class="btn-style" style="background:#f8f9fa; border:1px solid #ddd;">🖨️ 브라우저 인쇄 (PDF 저장 가능)</span> 버튼을 눌러 종이로 출력하거나 PDF로 저장해 바로 결재에 활용하세요!</p>
     </div>
 
     <div class="step-box" style="border-left: 5px solid #22c55e;">
-        <h2 style="color: #16a34a; border-left: none; padding-left: 0; background-color: #f0fdf4; border-radius: 5px; padding: 10px;">STEP 5-1. 🌐 AI 다국어 번역 및 독립 인쇄 (v5.5.5 고도화 ✨)</h2>
+
+        <!-- [기존 코드 백업] <h2 style="color: #16a34a; border-left: none; padding-left: 0; background-color: #f0fdf4; border-radius: 5px; padding: 10px;">STEP 5-1. 🌐 AI 다국어 번역 및 독립 인쇄 (v5.5.7 고도화 ✨)</h2> -->
+        <h2 style="color: #16a34a; border-left: none; padding-left: 0; background-color: #f0fdf4; border-radius: 5px; padding: 10px;">STEP 5-1. 🌐 AI 다국어 번역 및 독립 인쇄 (v5.5.21b 고도화 ✨)</h2>
         <p>외국인 근로자가 많은 현장을 위해 위험성평가서 내용을 <strong>영어, 중국어, 베트남어, 몽골어</strong>로 즉시 일괄 번역하여 출력할 수 있습니다.</p>
         <ol>
             <li><strong>번역 언어 선택:</strong> 최종 보고서 미리보기 화면 상단 액션 버튼부 우측의 <code>🌐 다국어 번역</code> 드롭다운에서 원하는 언어(영어/중국어/베트남어/몽골어)를 선택합니다.</li>
@@ -267,7 +364,8 @@
             </div>
         </div>
         -->
-        <p><strong>Developed by Minos Agent</strong> (<a href="https://github.com/hguyswow" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: bold;">GitHub @hguyswow</a>) | Version 5.5.5</p>
+        <!-- [기존 코드 백업] <p><strong>Developed by Minos Agent</strong> (<a href="https://github.com/hguyswow" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: bold;">GitHub @hguyswow</a>) | Version 5.5.7</p> -->
+        <p><strong>Developed by Minos Agent</strong> (<a href="https://github.com/hguyswow" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: bold;">GitHub @hguyswow</a>) | Version 5.5.21b</p>
         <div style="margin-top: 20px; background-color: #f0f8ff; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #cce5ff;">
             <p style="margin: 0 0 10px 0; font-weight: bold; color: #0056b3; font-size: 1.1em;">😊 반복 업무 탈출을 축하합니다!</p>
             <p style="margin: 5px 0; font-size: 0.95em;">매일 반복되는 서류 작업에서 해방되셨다면,<br>개발자가 더 좋은 기능을 만들 수 있도록 시원한 커피 한 잔을 선물해주세요!</p>

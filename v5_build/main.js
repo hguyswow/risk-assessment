@@ -3,6 +3,10 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
+// [PATCH] 샌드박스 권한 오류 우회 (액세스 거부 캐시 락 방지)
+app.commandLine.appendSwitch('no-sandbox');
+app.commandLine.appendSwitch('disable-gpu-sandbox');
+
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1280,

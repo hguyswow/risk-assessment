@@ -1,6 +1,6 @@
 {
     "name": "risk-assessment-app",
-    "version": "5.5.5",
+    "version": "5.5.21b",
     "description": "Risk Assessment Application v5.2.1",
     "main": "main.js",
     "scripts": {

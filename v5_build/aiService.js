@@ -58,6 +58,47 @@
     detailLevelRisk: 'high',
     enableQA: true
   };
+  /* [Gift Build Backup: 선물용 빌드 전용 자동 세팅]
+  const defaultAIConfig = {
+    provider: 'deepseek',
+    apiKey: 'sk-741e2d6aa2364d5392f9bb7c54037f6f', // DeepSeek 선물용 기본 키 탑재
+    modelName: 'deepseek-chat',
+    endpointUrl: '',
+    enabled: true,
+    riskCount: 5,
+    temp: 0.7,
+    detailLevelRisk: 'high',
+    enableQA: true
+  };
+  */
+
+
+  /**
+   * 응답 텍스트에서 안전하게 JSON 객체/배열 부분만 도려내어 파싱하는 무결성 헬퍼
+   */
+  function extractJson(text) {
+    let clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const firstBrace = clean.indexOf('{');
+    const firstBracket = clean.indexOf('[');
+    let startIdx = -1;
+    let endChar = '';
+    
+    if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+      startIdx = firstBrace;
+      endChar = '}';
+    } else if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+      startIdx = firstBracket;
+      endChar = ']';
+    }
+    
+    if (startIdx !== -1) {
+      const endIdx = clean.lastIndexOf(endChar);
+      if (endIdx !== -1 && endIdx > startIdx) {
+        clean = clean.substring(startIdx, endIdx + 1);
+      }
+    }
+    return JSON.parse(clean);
+  }
 
   /**
    * AI API 통합 호출기
@@ -766,9 +807,8 @@ ${qaInstruction}
 
     try {
       const responseText = await callAIAPI(prompt, config, temp, signal);
-      const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      
-      const parsedData = JSON.parse(cleanText);
+      // [PATCH] AI 위험요인 생성 결과 JSON 파싱 시 안전 슬라이싱 추출 헬퍼 적용
+      const parsedData = extractJson(responseText);
       return parsedData;
     } catch (e) {
       console.error("AI 응답 해석 실패. 원본 응답:", e);
@@ -1026,8 +1066,8 @@ ${expectedJsonSchema}
 
     try {
       const responseText = await callAIAPI(prompt, config, temp, signal);
-      const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsedData = JSON.parse(cleanText);
+      // [PATCH] AI 필드 재생성 결과 JSON 파싱 시 안전 슬라이싱 추출 헬퍼 적용
+      const parsedData = extractJson(responseText);
       return parsedData;
     } catch (e) {
       console.error("AI 필드 재생성 응답 해석 실패. 원본 응답:", e);
@@ -1127,8 +1167,8 @@ ${JSON.stringify(rawPayload, null, 2)}
 
     try {
       const responseText = await callAIAPI(prompt, config, temp, signal);
-      const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsedData = JSON.parse(cleanText);
+      // [PATCH] AI 다국어 번역 결과 JSON 파싱 시 안전 슬라이싱 추출 헬퍼 적용
+      const parsedData = extractJson(responseText);
       return parsedData;
     } catch (e) {
       console.error("AI 다국어 번역 응답 해석 실패. 원본 응답:", e);
