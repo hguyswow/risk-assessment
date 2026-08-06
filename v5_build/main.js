@@ -3,9 +3,11 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
-// [PATCH] 샌드박스 권한 오류 우회 (액세스 거부 캐시 락 방지)
+// [PATCH] 샌드박스 및 캐시 권한 오류 우회 (액세스 거부 캐시 락 방지)
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-gpu-sandbox');
+app.commandLine.appendSwitch('disable-http-cache');
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -23,6 +25,9 @@ function createWindow() {
 
     mainWindow.loadFile('index.html');
     mainWindow.maximize();
+    
+    // 개발 모드 디버깅을 위해 개발자 도구 강제 활성화
+    // mainWindow.webContents.openDevTools();
 
     // Menu.setApplicationMenu(null); // Uncomment to hide menu bar
 }
@@ -122,4 +127,111 @@ ipcMain.handle('http-request', async (event, { url, method = 'POST', headers = {
         }
     });
 });
+
+// [ADD] 업데이트 파일 다운로드 핸들러
+ipcMain.handle('download-update', async (event, { url }) => {
+    const https = require('https');
+    const http = require('http');
+    const { URL } = require('url');
+    
+    const parsedUrl = new URL(url);
+    const isHttps = parsedUrl.protocol === 'https:';
+    const httpModule = isHttps ? https : http;
+    
+    const tempDir = os.tmpdir();
+    const downloadPath = path.join(tempDir, 'RiskAssessmentPro_Setup_Latest.exe');
+    
+    // 이전 다운로드 파일 제거
+    if (fs.existsSync(downloadPath)) {
+        try { fs.unlinkSync(downloadPath); } catch(e){}
+    }
+
+    const win = BrowserWindow.fromWebContents(event.sender);
+    
+    return new Promise((resolve) => {
+        function downloadFile(targetUrl) {
+            const reqUrl = new URL(targetUrl);
+            const options = {
+                hostname: reqUrl.hostname,
+                port: reqUrl.port || (reqUrl.protocol === 'https:' ? 443 : 80),
+                path: reqUrl.pathname + reqUrl.search,
+                method: 'GET',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            };
+            
+            httpModule.get(options, (res) => {
+                // 리다이렉트 처리 (구글 드라이브 다운로드 시 필수)
+                if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                    let nextUrl = res.headers.location;
+                    if (!nextUrl.startsWith('http')) {
+                        nextUrl = new URL(nextUrl, targetUrl).href;
+                    }
+                    downloadFile(nextUrl);
+                    return;
+                }
+                
+                if (res.statusCode !== 200) {
+                    resolve({ ok: false, error: `HTTP 상태 오류: ${res.statusCode}` });
+                    return;
+                }
+                
+                const totalBytes = parseInt(res.headers['content-length'], 10) || 0;
+                let downloadedBytes = 0;
+                
+                const fileStream = fs.createWriteStream(downloadPath);
+                res.pipe(fileStream);
+                
+                res.on('data', (chunk) => {
+                    downloadedBytes += chunk.length;
+                    if (totalBytes > 0) {
+                        const progress = Math.round((downloadedBytes / totalBytes) * 100);
+                        win.webContents.send('download-progress', { progress, downloadedBytes, totalBytes });
+                    } else {
+                        // Content-Length 가 없는 경우 용량만 전송
+                        win.webContents.send('download-progress', { progress: -1, downloadedBytes, totalBytes: 0 });
+                    }
+                });
+                
+                fileStream.on('finish', () => {
+                    fileStream.close();
+                    resolve({ ok: true, path: downloadPath });
+                });
+                
+                fileStream.on('error', (err) => {
+                    fs.unlink(downloadPath, () => {});
+                    resolve({ ok: false, error: `파일 저장 오류: ${err.message}` });
+                });
+            }).on('error', (err) => {
+                resolve({ ok: false, error: `네트워크 다운로드 오류: ${err.message}` });
+            });
+        }
+        
+        downloadFile(url);
+    });
+});
+
+// [ADD] 다운로드 완료된 인스톨러 실행 핸들러
+ipcMain.handle('execute-installer', async (event, { filePath }) => {
+    const { exec } = require('child_process');
+    if (!fs.existsSync(filePath)) {
+        return { ok: false, error: '인스톨러 파일을 찾을 수 없습니다.' };
+    }
+    
+    // Windows 환경에서 인스톨러 실행 후 현재 앱 종료
+    exec(`"${filePath}"`, (err) => {
+        if (err) {
+            console.error('인스톨러 실행 오류:', err);
+        }
+    });
+    
+    // 인스톨러 실행 명령어 직후 일렉트론 앱을 즉시 종료하여 설치 패치가 정상적으로 진행되도록 함
+    setTimeout(() => {
+        app.quit();
+    }, 1000);
+    
+    return { ok: true };
+});
+
 

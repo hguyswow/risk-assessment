@@ -1,7 +1,7 @@
 {
     "name": "risk-assessment-app",
-    "version": "5.5.21b",
-    "description": "Risk Assessment Application v5.2.1",
+    "version": "6.0.1",
+    "description": "Risk Assessment Application v6.0.1 - Emergency patch: ban law citation hallucination",
     "main": "main.js",
     "scripts": {
         "start": "electron .",

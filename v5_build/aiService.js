@@ -77,7 +77,11 @@
    * 응답 텍스트에서 안전하게 JSON 객체/배열 부분만 도려내어 파싱하는 무결성 헬퍼
    */
   function extractJson(text) {
-    let clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    let clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+    // [방어 조치 1] 제어 문자 정제 (AI가 간혹 삽입하는 BOM, 널 바이트 등 제거)
+    clean = clean.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F]/g, '');
+
     const firstBrace = clean.indexOf('{');
     const firstBracket = clean.indexOf('[');
     let startIdx = -1;
@@ -97,7 +101,21 @@
         clean = clean.substring(startIdx, endIdx + 1);
       }
     }
-    return JSON.parse(clean);
+
+    // [방어 조치 2] try-catch 단계적 복구 파싱
+    try {
+      return JSON.parse(clean);
+    } catch (e1) {
+      console.warn('[extractJson] 1차 파싱 실패, 후행 쉼표 제거 후 재시도:', e1.message);
+      try {
+        // AI가 자주 범하는 trailing comma 제거 (예: [1,2,3,] → [1,2,3])
+        const fixedTrailing = clean.replace(/,\s*([\]}])/g, '$1');
+        return JSON.parse(fixedTrailing);
+      } catch (e2) {
+        console.error('[extractJson] 최종 파싱 실패. 원본 텍스트 일부:', clean.substring(0, 300));
+        throw new Error('AI 응답 JSON 파싱 실패: ' + e2.message);
+      }
+    }
   }
 
   /**
@@ -108,6 +126,8 @@
       return callGemini(prompt, config, temp, signal);
     } else if (config.provider === 'deepseek') {
       return callDeepSeek(prompt, config, temp, signal);
+    } else if (config.provider === 'openrouter') {
+      return callOpenRouter(prompt, config, temp, signal);
     } else if (config.provider === 'ollama') {
       return callOllama(prompt, config, temp, signal);
     } else if (config.provider === 'lmstudio') {
@@ -264,6 +284,115 @@
     }
 
     throw formatAIError(lastError || new Error("Gemini API 호출에 모든 모델 및 API Key가 실패했습니다."), 'gemini');
+  }
+
+  /**
+   * OpenRouter 연동 (DeepSeek 모델 등)
+   */
+  async function callOpenRouter(prompt, config, temp, signal) {
+    const rawEndpoint = (config.endpointUrl || '').trim();
+    const url = !rawEndpoint ? 'https://openrouter.ai/api/v1/chat/completions' : rawEndpoint;
+    const model = config.modelName || 'deepseek/deepseek-chat';
+    
+    let activeKeys = [];
+    if (Array.isArray(config.apiKeys) && config.apiKeys.length > 0) {
+      activeKeys = config.apiKeys;
+    } else {
+      const singleKey = (config.apiKey || '').trim();
+      if (singleKey) activeKeys = [singleKey];
+    }
+    
+    if (activeKeys.length === 0) {
+      throw new Error("OpenRouter API Key가 비어 있습니다. AI 설정 탭에서 API Key를 입력하세요.");
+    }
+
+    let lastError = null;
+
+    for (let keyIdx = 0; keyIdx < activeKeys.length; keyIdx++) {
+      const currentKey = activeKeys[keyIdx];
+      const isMultiKey = activeKeys.length > 1;
+
+      if (isMultiKey) {
+        console.info(`[OpenRouter] 등록된 ${activeKeys.length}개의 키 중 ${keyIdx + 1}번째 키로 API 호출을 시도합니다.`);
+      }
+
+      try {
+        let response;
+        try {
+          response = await ipcFetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${currentKey}`,
+              "HTTP-Referer": "http://localhost:8081",
+              "X-Title": "RiskAssessmentPro"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: "user", content: prompt }],
+              temperature: temp,
+              response_format: { type: 'json_object' }
+            }),
+            signal
+          });
+        } catch (fetchErr) {
+          throw fetchErr;
+        }
+
+        if (!response.ok) {
+          const text = await response.text();
+          
+          const isAuthError = response.status === 401 || text.includes('invalid_api_key') || text.includes('authentication') || text.includes('401');
+          const isQuotaOrBalanceError = response.status === 429 || response.status === 402 || text.includes('credit') || text.includes('balance') || text.includes('limit');
+
+          if (isAuthError || isQuotaOrBalanceError) {
+            const err = new Error(`OpenRouter API Error ${response.status}: ${text}`);
+            if (isMultiKey && keyIdx < activeKeys.length - 1) {
+              console.warn(`[OpenRouter] ${keyIdx + 1}번째 키 문제 발생 (${response.status}). 다음 키로 자동 전환합니다.`);
+              throw err;
+            }
+            throw formatAIError(err, 'openrouter');
+          }
+          
+          // JSON 모드 실패 시 일반 텍스트 모드로 재시도
+          console.warn(`[OpenRouter] JSON 모드 호출 실패 (${response.status}). 일반 텍스트 모드로 재시도합니다.`);
+          response = await ipcFetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${currentKey}`,
+              "HTTP-Referer": "http://localhost:8081",
+              "X-Title": "RiskAssessmentPro"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: "user", content: prompt }],
+              temperature: temp
+            }),
+            signal
+          });
+
+          if (!response.ok) {
+            const textFinal = await response.text();
+            const err = new Error(`OpenRouter API Error ${response.status}: ${textFinal}`);
+            throw formatAIError(err, 'openrouter');
+          }
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || "";
+      } catch (e) {
+        lastError = e;
+        if (e.name === 'AbortError') throw e;
+        
+        if (isMultiKey && keyIdx < activeKeys.length - 1) {
+          continue;
+        }
+        throw e;
+      }
+    }
+
+    throw formatAIError(lastError || new Error("OpenRouter API 호출에 모든 API Key가 실패했습니다."), 'openrouter');
   }
 
   /**
@@ -684,7 +813,7 @@
     if (detailLevelRisk === 'low') {
       riskVerbosity = "- 위험성평가서의 '위험발생및결과'(유해위험요인), '현재조치', '감소대책' 필드는 개조식으로 간결하게 1~2줄 내외로 핵심만 요약 기재하십시오.";
     } else if (detailLevelRisk === 'high') {
-      riskVerbosity = "- 위험성평가서의 '위험발생및결과'는 구체적인 유해위험 상황과 부상을 기술하고, '현재조치'는 일반적인 안전 조치, '감소대책'은 구체적인 안전 규칙 기준 조항(예: 안전보건규칙 제OO조), 수치 기준(예: 높이 2m 이상 시 안전대 걸이대 설치 등), 물리적/공학적 대책을 풍부히 수록하여 4~5줄 이상의 상세한 서술식 장문으로 아주 자세하게 기재하십시오.";
+      riskVerbosity = "- 위험성평가서의 '위험발생및결과'는 구체적인 유해위험 상황과 부상을 기술하고, '현재조치'는 일반적인 안전 조치, '감소대책'은 현장에서 즉시 적용 가능한 물리적/공학적 수치 기준(예: 높이 2m 이상 시 안전대 걸이대 설치, 개구부 덮개 설치 등)과 구체적인 실무 대책을 풍부히 수록하여 4~5줄 이상의 상세한 서술식 장문으로 아주 자세하게 기재하십시오. 단, 법령명·시행령·시행규칙·조항 번호(예: 제OO조)는 절대 기재하지 마십시오.";
     } else {
       riskVerbosity = "- 위험성평가서의 각 필드는 안전 관리 서식 표준에 맞게 주요 유해위험요인과 감소 대책을 3줄 내외로 명확하고 성실하게 작성하십시오.";
     }
@@ -743,11 +872,19 @@
 당신은 건설 현장 안전보건 관리 책임자이자 전문 위험성 평가관입니다.
 제공된 [공사 현황 정보]를 바탕으로, '7단 정식 위험성 평가표'(총 ${riskCount}개 행)를 고신뢰성으로 안전하게 작성해야 합니다.
 
-★ [초필수 규칙 - 법적 공신력 및 현장 현실성 가이드]:
-1. 반드시 대한민국 법령 및 안전 보건 규칙(예: '산업안전보건기준에 관한 규칙', '산업안전보건법', '건설기술 진흥법')에 실존하는 정확한 안전 지침, 작업 허가 규정만을 기반으로 작성해야 합니다.
-2. 법이나 규칙에 존재하지 않는 허구의 법령 조항 번호, 가공의 안전 기준 수치(예: 임의 조작된 허용 하중, 존재하지 않는 기온/풍속 기준), 가상의 교육 규칙 등을 절대로 지어내지(Hallucination) 마십시오.
-3. 실제 건설현장 실무에서 적용 불가능한 탁상공론식 조치나 가상 기동 장비 등 비현실적인 해결책은 전면 배제하고, 현업 관리자와 근로자가 현장에서 즉시 적용하고 점검할 수 있는 현실적이고 물리적인 감소대책만을 엄격하게 제시해야 합니다.
-4. 상세형을 작성할 때는 실제 법적 근거가 명확한 규칙 조항 번호(예: 규칙 제32조, 제42조 등)와 공인된 물리적 수치 기준(예: 높이 2m 이상 시 작업발판 설치 등)을 성실하게 인용하되, 기억이 나지 않거나 불명확한 법 조항을 임의로 추측하여 허위 기재하지 마십시오.
+★ [초필수 규칙 - 현장 실무 중심 작성 가이드]:
+1. 대한민국 건설 안전 관리 실무에서 통용되는 일반적인 안전 지침과 현장 관행을 바탕으로 작성하되, 현업 관리자와 근로자가 현장에서 즉시 적용하고 점검할 수 있는 현실적이고 물리적인 감소대책만을 엄격하게 제시해야 합니다.
+2. 실제 건설현장 실무에서 적용 불가능한 탁상공론식 조치나 가상 기동 장비 등 비현실적인 해결책은 전면 배제하십시오.
+3. 존재하지 않는 가공의 안전 기준 수치(예: 임의 조작된 허용 하중, 존재하지 않는 기온/풍속 기준)를 절대로 지어내지(Hallucination) 마십시오.
+
+★★★ [절대 금지 규칙 - 법령/조항 인용 전면 금지]:
+본 시스템은 법령 팩트체크 기능이 없으므로 허위 법령 인용에 따른 법적 책임 위험을 원천 차단합니다.
+다음 항목들을 출력 텍스트에 절대 포함하지 마십시오:
+- 법률명 (예: 산업안전보건법, 건설기술진흥법 등)
+- 시행령, 시행규칙 명칭
+- 조항 번호 (예: 제OO조, 제OO항, 제OO호)
+- 고시, 지침, 기준 문서 번호
+위반 시 허위 법령 유포로 간주됩니다. 대신, 구체적인 물리적 수치(높이, 하중, 거리 등)와 현장 실무 용어만으로 감소대책을 서술하십시오.
 
 ★ [출력 분량 및 글자수 제한 지침]:
 1. '위험발생및결과'(유해위험요인) 필드의 텍스트는 공백 포함 반드시 최대 ${config.maxLenHazard || 50}자 이내로 핵심만 간결하고 명료하게 작성하십시오. (절대 초과 금지)
@@ -847,6 +984,18 @@ DeepSeek 플랫폼(platform.deepseek.com)에 로그인하신 후 크레딧을 �
         friendlyMsg = `DeepSeek API 호출 중 오류가 발생했습니다.
 [에러 내용]: ${errMsg}`;
       }
+    } else if (provider === 'openrouter') {
+      if (errMsg.includes('credit') || errMsg.includes('balance') || errMsg.includes('402') || errMsg.includes('429') || errMsg.includes('limit')) {
+        friendlyMsg = `OpenRouter 계정의 잔액(Credit)이 부족하거나 호출 한도를 초과했습니다.
+
+[조치 방법]:
+OpenRouter 플랫폼(openrouter.ai)에 로그인하신 후 계정 잔액을 충전하거나 API Key의 한도(Limit) 설정을 상향해 주세요.`;
+      } else if (errMsg.includes('401') || errMsg.includes('key') || errMsg.includes('auth')) {
+        friendlyMsg = "유효하지 않은 OpenRouter API Key입니다. AI 설정 탭에 올바른 API Key를 입력하셨는지 확인해 주세요.";
+      } else {
+        friendlyMsg = `OpenRouter API 호출 중 오류가 발생했습니다.
+[에러 내용]: ${errMsg}`;
+      }
     } else if (provider === 'ollama') {
       if (errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError')) {
         friendlyMsg = "로컬 Ollama 서버에 연결할 수 없습니다. Ollama 앱이 실행 중인지, 혹은 주소(http://localhost:11434)가 올바른지 확인해 주세요.";
@@ -879,7 +1028,7 @@ DeepSeek 플랫폼(platform.deepseek.com)에 로그인하신 후 크레딧을 �
     if (detailLevelRisk === 'low') {
       riskVerbosity = "- 각 필드는 개조식으로 간결하게 1~2줄 내외로 핵심만 요약 기재하십시오.";
     } else if (detailLevelRisk === 'high') {
-      riskVerbosity = "- '위험발생및결과'는 구체적인 유해위험 상황과 부상을 기술하고, '현재조치'는 일반적인 안전 조치, '감소대책'은 구체적인 안전 규칙 기준 조항(예: 안전보건규칙 제OO조), 수치 기준(예: 높이 2m 이상 시 안전대 걸이대 설치 등), 물리적/공학적 대책을 풍부히 수록하여 4~5줄 이상의 상세한 서술식 장문으로 아주 자세하게 기재하십시오.";
+      riskVerbosity = "- '위험발생및결과'는 구체적인 유해위험 상황과 부상을 기술하고, '현재조치'는 일반적인 안전 조치, '감소대책'은 현장에서 즉시 적용 가능한 물리적/공학적 수치 기준(예: 높이 2m 이상 시 안전대 걸이대 설치 등)과 구체적인 실무 대책을 풍부히 수록하여 4~5줄 이상의 상세한 서술식 장문으로 아주 자세하게 기재하십시오. 단, 법령명·시행령·시행규칙·조항 번호(예: 제OO조)는 절대 기재하지 마십시오.";
     } else {
       riskVerbosity = "- 각 필드는 안전 관리 서식 표준에 맞게 주요 유해위험요인과 감소 대책을 3줄 내외로 명확하고 성실하게 작성하십시오.";
     }
@@ -929,7 +1078,7 @@ DeepSeek 플랫폼(platform.deepseek.com)에 로그인하신 후 크레딧을 �
   "wihum": "새로 생성된 위험세부분류 (예: 추락/낙하)",
   "위험발생및결과": "이에 종속되는 유해위험요인 (예: 고소 작업발판 끝단에서 몸을 내밀어 비계 핀 체결 중 중심을 잃고 2m 아래로 추락)",
   "현재조치": "현재 조치사항 (예: 추락방지망 설치 상태 점검 및 안전대 고리 체결 확인)",
-  "감소대책": "감소대책 (예: 안전대 걸이대 높이를 작업자 어깨 높이 이상으로 상향 설치하고, 비계 외측 단부에는 안전난간 및 발끝막이판을 규칙 제42조에 준수하여 설치)"
+  "감소대책": "감소대책 (예: 안전대 걸이대 높이를 작업자 어깨 높이 이상으로 상향 설치하고, 비계 외측 단부에는 안전난간 및 발끝막이판을 설치)"
 }
 `;
     } else if (field === '위험발생및결과') {
@@ -973,7 +1122,7 @@ DeepSeek 플랫폼(platform.deepseek.com)에 로그인하신 후 크레딧을 �
       expectedJsonSchema = `
 {
   "현재조치": "새로 생성된 현재 조치사항 (예: 전기 릴선 피복 손상 유무 및 누전차단기 정상 동작 여부 사전 점검)",
-  "감소대책": "이에 부합하는 감소대책 (예: 손상된 피복은 즉시 폐기하고 규격품 케이블을 사용하며, 모든 임시 동력 분전반에는 감전 예방용 고감도 누전차단기를 규칙 제304조에 의거하여 의무 설치 및 월 1회 작동 시험 실시)"
+  "감소대책": "이에 부합하는 감소대책 (예: 손상된 피복은 즉시 폐기하고 규격품 케이블을 사용하며, 모든 임시 동력 분전반에는 감전 예방용 고감도 누전차단기를 의무 설치하고 월 1회 작동 시험 실시)"
 }
 `;
     } else if (field === '감소대책') {
@@ -1044,10 +1193,10 @@ ${expectedJsonSchema}
 
 ${updateInstructions}
 
-★ [초필수 규칙 - 법적 공신력 및 현장 현실성 가이드]:
-1. 반드시 대한민국 법령 및 안전 보건 규칙(예: '산업안전보건기준에 관한 규칙', '산업안전보건법', '건설기술 진흥법')에 실존하는 정확한 안전 지침, 작업 허가 규정만을 기반으로 작성해야 합니다.
+★ [초필수 규칙 - 현장 실무 중심 작성 가이드]:
+1. 대한민국 건설 안전 관리 실무에서 통용되는 일반적인 안전 지침과 현장 관행을 바탕으로 작성하십시오.
 2. 실제 건설현장 실무에서 적용 불가능한 탁상공론식 조치나 가상 기동 장비 등 비현실적인 해결책은 전면 배제하고, 현업 관리자와 근로자가 현장에서 즉시 적용하고 점검할 수 있는 현실적이고 물리적인 감소대책만을 엄격하게 제시해야 합니다.
-3. 법적 근거가 명확한 규칙 조항 번호(예: 규칙 제32조, 제42조 등)와 공인된 물리적 수치 기준(예: 높이 2m 이상 시 작업발판 설치 등)을 성실하게 인용하십시오.
+3. 법령명·시행령·시행규칙·조항 번호(예: 제OO조, 산업안전보건법 등)는 절대 기재하지 마십시오. 구체적인 물리적 수치 기준(예: 높이 2m 이상 시 작업발판 설치 등)만 인용하십시오.
 
 ★ [출력 분량 및 글자수 제한 지침]:
 1. '위험발생및결과'(유해위험요인) 필드의 텍스트는 공백 포함 반드시 최대 ${config.maxLenHazard || 50}자 이내로 핵심만 간결하고 명료하게 작성하십시오. (절대 초과 금지)
@@ -1143,7 +1292,7 @@ ${JSON.stringify(rawPayload, null, 2)}
 
 ★ [번역 규칙 - 절대 준수]:
 1. 임의로 위험성 내용을 창작하거나 안전 조치를 가공하여 추가하지 마십시오. 오직 원문 그대로 번역만 수행해야 합니다.
-2. 텍스트 내의 수치 기준(예: 2m, 1.5m 등) 및 법적 조항(예: 규칙 제32조, 제42조 등)은 절대 변경하지 말고 그대로 번역어와 조화롭게 포함하여 유지하십시오.
+2. 텍스트 내의 수치 기준(예: 2m, 1.5m 등) 등 원문에 포함된 수치는 절대 변경하지 말고 그대로 번역어와 조화롭게 포함하여 유지하십시오.
 3. 건설 분야 실무 장비 명칭(예: Table Lift, 스카이 장비, 굴착기 등)은 글로벌 표준 건설 용어 또는 현지 실무어로 명확하게 대칭 번역하십시오.
 4. 부가적인 주석, 서론/결론, 백틱 기호(예: \`\`\`) 등은 최종 결과물에 절대로 포함하지 마십시오. 순수한 JSON 배열만 출력하십시오.
 
@@ -1176,6 +1325,40 @@ ${JSON.stringify(rawPayload, null, 2)}
     }
   }
 
+  /**
+   * OpenRouter API Key 잔액 및 크레딧 사용량 조회
+   */
+  async function getOpenRouterKeyUsage(apiKey) {
+    try {
+      const url = 'https://openrouter.ai/api/v1/key';
+      const response = await ipcFetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        signal: AbortSignal.timeout(6000)
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const resData = await response.json();
+      if (resData && resData.data) {
+        return {
+          success: true,
+          label: resData.data.label,
+          limit: resData.data.limit,
+          usage: resData.data.usage,
+          limit_remaining: resData.data.limit_remaining,
+          is_active: resData.data.is_active
+        };
+      }
+      throw new Error("올바른 응답 형식이 아닙니다.");
+    } catch (e) {
+      console.warn('[OpenRouter] 키 사용량 조회 실패:', e.message);
+      return { success: false, error: e.message };
+    }
+  }
+
   // [기존 코드 보존]
   /*
   // 전역에 노출
@@ -1192,7 +1375,8 @@ ${JSON.stringify(rawPayload, null, 2)}
     testConnection,
     generateRiskAssessment,
     regenerateRiskField,
-    translateRiskAssessment
+    translateRiskAssessment,
+    getOpenRouterKeyUsage
   };
 
 })(window);
