@@ -1,5 +1,228 @@
 # WORKINFO
 
+## 📅 작업 일지 (2026-08-21) - 보고서 미리보기 표 여백 설정 4종 최대치 2배 상향 (WO-17) (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 📏 HTML `<input>` `max` 속성 4곳 상향
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L3390-3402 부근 "📏 표 여백" 패널의 입력창 최대치 속성 상향:
+     - 줄수 (`report-target-lines-input`): `max="24"` → `max="48"`
+     - 행높이 (`report-empty-row-height-input`): `max="45"` → `max="90"`
+     - 셀 여백 (`report-cell-padding-input`): `max="10"` → `max="20"`
+     - 줄간격 (`report-line-height-input`): `max="2.0"` → `max="4.0"`
+
+2. 🛡️ `initReportRowHeightPanel()` 내 `applyChange()` JS 클램프 상한 상향
+   - L10928-10940 부근 `Math.min` 클램프 상한을 HTML `max`와 완벽히 일치하도록 4곳 동시 상향 (`48`, `90`, `20`, `4.0`).
+   - 기본값/최소치/이벤트 바인딩/보고서 재렌더링 로직 무손상 보존.
+
+3. 🧪 무결성 검증 및 클램핑 테스트 (Error Count: 0)
+   - `index.html` 내 6개 인라인 스크립트 전수 구문 검증 통과 (에러 0건).
+   - 정상 새 최대치 반영, 최대치 초과 입력 시 클램핑, 최소치 미달 입력 시 클램핑 검증 100% 통과.
+
+---
+
+
+
+
+
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 💾 `saveToDownload()` 직렬화 데이터 대상 확장
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L11894 부근 `dataToSave` 객체에 **`photoBoardData`**, **`coverPageData`**, **`printTheme`**, **`reportLayoutSettings`** (행수, 빈행높이, 셀여백, 줄간격) 4가지 필수 요소를 추가했습니다.
+
+2. 📂 `loadDataFromFile()` 6-1단계 복원 구문 추가
+   - L12091 부근 헤더 복원(6단계) 직후 독립 `try-catch` 구문의 **6-1단계**를 신설했습니다.
+   - `photoBoardData` 및 `coverPageData`는 `{ ...현재값, ...불러운값 }` 스프레드 연산으로 속성 유실을 방지했습니다.
+   - `printTheme` 복원 시 `localStorage.setItem('printTheme', ...)`와 `window.currentPrintTheme`를 동시 갱신해 렌더링 동기화 사각지대를 차단했습니다.
+   - 구버전 파일(이번 메타데이터가 없는 파일) 복원 시에도 무중단으로 건너뛰도록 가딩 구문을 반영했습니다.
+
+3. 🔘 미리보기 화면 액션 바 버튼 2개 추가
+   - L3350 부근 `🖨️ PDF 미리보기 및 인쇄` 버튼 오른쪽에 `💾 완성본으로 저장` (`showSaveModal()`) 및 `📂 완성본 불러오기` (`showLoadModal()`) 버튼을 추가하여 기존 검증된 파일 입출력 모달을 재활용했습니다.
+
+4. 🧪 정적 파싱 & Red Team 회귀 검사 100% 성공 (Error Count: 0)
+   - `index.html` 인라인 스크립트 파싱 검증 (6개 스크립트 0건 에러)
+   - Red Team 4대 검사(dataToSave 확장, 스프레드 복원, 테마 이중상태 갱신, 미리보기 버튼 추가) 100% 통과.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 사진대지(📸) 일자 사용자 설정 지원 및 오타 필드 정상화 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 📅 데이터 구조 확장 & 모달 마크업 추가 (`#pb-date-input`)
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L4232 부근 `photoBoardData`에 `date: ''` 기본 필드를 추가했습니다.
+   - L12528 부근 사진대지 설정 모달 체크박스 직후에 `📅 사진대지 일자` (`<input type="date" id="pb-date-input">`) 입력을 추가했습니다.
+
+2. ⚙️ 모달 open/save 연동 및 오타 참조 원천 해결
+   - `openPhotoBoardModal()`에서 `photoBoardData.date || reportHeaderData.date || hoyDate` 삼중 폴백으로 날짜를 입력에 자동 바인딩하도록 조치했습니다.
+   - `savePhotoBoardModal()`에서 입력된 날짜를 `photoBoardData.date`에 저장하고 기존 `saveUserData()` 파이프라인을 타게 했습니다.
+   - `getPhotoBoardHTML()` 내의 오타 필드 참조(`reportHeaderData.reportDate`)를 제거하고 `photoBoardData.date || reportHeaderData.date || hoyDate` 삼중 폴백으로 정상 연동했습니다.
+
+3. 🧪 정적 파싱 & Red Team 회귀 검사 100% 성공 (Error Count: 0)
+   - `index.html` 인라인 스크립트 파싱 검증 (6개 스크립트 0건 에러)
+   - Red Team 4대 검사(마크업/데이터 추가, open 모달 바인딩, save 모달 저장, reportHTML 오타 수정) 100% 통과.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 최종 보고서 미리보기 인라인 셀 직접 편집 구현 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🎨 미리보기 셀 전용 인라인 에디팅 CSS 신설 (`.report-editable-cell`)
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L595 부근에 커서(`cursor: text`), 호버 배경, 포커스(`:focus`) 시 파란 점선 아웃라인(`outline: 2px dashed #2563eb`)을 추가했습니다. (인쇄 시에는 슈도 클래스 특성상 100% 자동 제외)
+
+2. 🏷️ 3대 인쇄 테마 (Classic/Modern/Future) 9개 데이터 셀 편집 속성 주입
+   - `lang === 'ko'`일 때만 `contenteditable="true"`가 되도록 `isEditableLang` 변수를 적용하여 다국어 번역 시에는 읽기 전용으로 안전하게 격리했습니다.
+   - 3대 테마 x 3개 필드(`유해위험요인`, `현재조치`, `개선대책`) 총 9개 `<td>`에 `data-id` 및 `data-field` 속성을 반영했습니다.
+
+3. ⚡ 이벤트 위임 헬퍼 신설 (`initReportPreviewInlineEdit`) & 캡처링 단계 바인딩
+   - `blur` 이벤트의 비버블링 특성을 원천 차단하기 위해 3번째 매개변수에 `true` (`useCapture`)를 적용하여 `#report-preview` 상위 래퍼에서 100% 캡처 처리하도록 바인딩했습니다.
+   - 포커스 아웃 시 `findItemRefById(id)`로 리프 객체를 탐색하고, 값이 변경되었을 때만 `itemRef[field] = newValue` 갱신 및 `saveUserData()` DB 저장을 수행하여 불필요한 연산을 방지했습니다.
+
+4. 🧪 정적 파싱 & Red Team 회귀 검사 100% 성공 (Error Count: 0)
+   - `index.html` 인라인 스크립트 파싱 검증 (6개 스크립트 0건 에러)
+   - Red Team 5대 검사(Blur capturing true, 9개 셀 contenteditable, 9개 셀 data-field per-theme 전수 할당, CSS outline, 동일 값 저장 스킵) 100% 통과.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 보고서 내용 셀 상하 여백/줄간격 조절 기능 개발 및 서류 압축 UX 지원 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 📏 내용 셀 상하 여백 & 줄간격 독립 읽기 헬퍼 신설 (`getReportCellStyleSettings`)
+   - WO-2 빈 행 전용 `getReportRowSettings()`와 격리된 독립 헬퍼를 신설하여 `reportCellPadding` (기본값 4px, 범위 1~10) 및 `reportLineHeight` (기본값 1.4, 범위 1.0~2.0)를 안전하게 관리합니다.
+
+2. 🎛️ 미리보기 제어 바 UI 확장 및 `initReportRowHeightPanel()` 통합
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L3378 `행높이(px)` 라벨 우측에 `셀 여백(px)` (`#report-cell-padding-input`) 및 `줄간격` (`#report-line-height-input`) 입력 2종을 추가했습니다.
+   - 단일 초기화 지점인 `initReportRowHeightPanel()` 내부에서 신규 입력을 로드하고 범위 제한(clamp), `localStorage` 저장 및 `generateReport()` 실시간 바인딩을 통합 처리했습니다.
+
+3. 🎨 3대 인쇄 테마(Classic / Modern / Future) 9개 다행 데이터 셀 동적 치환
+   - `위험발생및결과`, `현재조치`, `감소대책` 3개 필드 x 3대 테마 = 총 9개 데이터 셀의 하드코딩 `padding`과 `line-height`를 동적 템플릿 변수로 전수 치환했습니다.
+   - (단행 라벨 셀인 세부작업명/위험세부분류/위험성 배지 셀은 사양에 따라 그대로 보존)
+
+4. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 6개 인라인 스크립트 파싱 검증 및 Red Team 4대 검사(9개 셀 전수 치환, 독립 헬퍼 및 키 분리, 입력 조절 UI & clamp 지정, init 패널 바인딩 확장)를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 보고서 여백/테마 변경 시 스크롤 최상단 튕김 회귀 버그 해결 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🐛 스크롤 클램핑(Scroll Clamping) 원인 정밀 해결
+   - WO-7 적용 후 `generateReport()` 진입 직후(`innerHTML = ''`로 DOM을 지워 문서 높이가 0 근처가 된 순간) `syncReportPanelStickyOffset()`가 호출되었습니다.
+   - 내부의 `getBoundingClientRect()`가 브라우저 동기적 리플로우(Synchronous Reflow)를 유발하여 현재 스크롤 Y 위치를 짧아진 스크롤 가능 범위(0)로 강제 클램핑시키는 회귀 버그의 근본 원인을 파악했습니다.
+
+2. ⚡ 비파괴적 호출 순서 재배치 (`generateReport` 실행 타이밍 교정)
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) L10654의 `syncReportPanelStickyOffset()` 호출 블록을 제거하고, 모든 보고서 페이지/사진대지가 완전히 append 완료된 `generateReport()` 맨 마지막 줄(L10731 부근)로 호출 위치를 100% 안전하게 이동시켰습니다.
+   - 우회 코드(scrollY 수동 복원 오버헤드 등) 추가 없이 순수 호출 순서 교정만으로 스크롤 유지 라이브 피드백 UX를 완성했습니다.
+
+3. 🔍 WO-2 (표 여백 조절) 수동 검증의 완전한 완료
+   - 이로써 사용자가 보고서 본문 중간/하단을 바라보는 상태에서 `📏 표 여백` (줄수/행높이)을 변경하거나 테마를 바꿔도 스크롤 위치가 최상단으로 튕기지 않고 그대로 보존된 채 표 형태 변화를 직접 실시간 모니터링할 수 있게 되었습니다.
+
+4. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 6개 인라인 스크립트 파싱 검증 및 Red Team 3대 검사(시작 시점 호출 삭제, append 완료 후 이동, sticky CSS 및 헬퍼 기능 유지)를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 보고서 미리보기 제어 바 스크롤 Sticky 고정 & 표 여백 실시간 모니터링 UX 구현 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 📌 `.report-preview-actions-panel` 스크롤 상단 고정 CSS 정의
+   - 기존 `display`, `background`, `box-shadow` 등의 레이아웃 규격을 100% 보존하면서 `position: sticky !important; z-index: 500 !important; top: 90px !important;` (CSS 폴백) 속성을 적용했습니다.
+   - 상단 최상위 타이틀 바(`.main-title-container`, `z-index: 1000`)보다 낮은 계층을 유지하여 스크롤 시 타이틀 바 아래로 정갈하게 깔려 지나가도록 서열을 명확히 설정했습니다.
+
+2. 📏 헤더 런타임 실측 오프셋 동적 동기화 헬퍼 개발 (`syncReportPanelStickyOffset`)
+   - 로고 유무나 회사명 길이에 따른 타이틀 바 높이 변동에 100% 맞춤 피팅하기 위해 `titleEl.getBoundingClientRect().bottom` 실측치를 런타임 동기화하는 헬퍼 함수를 신설했습니다.
+   - `generateReport()` 진입 시 1회 직후 호출 + `setTimeout(150)` 2차 지연 보정 호출로 화면 전환 직후 밀착 정렬을 완성했습니다.
+   - `window.addEventListener('resize', syncReportPanelStickyOffset)`를 바인딩하여 브라우저 리사이징 시에도 즉시 유연하게 상단 고정 간격이 맞춰지도록 구현했습니다.
+
+3. 🔍 WO-2 (표 여백 조절) 실시간 체감 UX의 완벽한 결합
+   - 이제 유저가 보고서 표 본문을 아래로 스크롤하여 바라보면서도 상단 고정 제어 바의 `📏 표 여백` (줄수 6~24 / 행높이 15~45px) 입력란 수치를 수정할 수 있으며, 하단 표의 행 개수 및 높이가 즉시 실시간 변경되는 것을 눈앞에서 직접 확인 가능하게 되었습니다.
+
+4. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 6개 인라인 스크립트 파싱 검증 및 Red Team 4대 검사(sticky CSS 속성, sync 헬퍼 정의, generateReport 2회 호출, resize 리스너 결합)를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-07) - 매뉴얼 모드 온보딩 첫 단계 버튼 펄스 & 말풍선 힌트 개발 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🌟 독립 키프레임 및 파란 펄스 하이라이트 클래스 신설 (`@keyframes manualAddItemPulse`)
+   - 기존의 `@keyframes pulse` 및 `@keyframes manualModeBtnPulse`는 손대지 않고 독립된 키프레임을 신설하여 100% 모듈 안전성을 보장했습니다.
+   - 버튼 고유 색상인 파란색(`#2563eb`) 계열 박스 섀도우 링이 은은하게 퍼지는 `.manual-add-item-highlight` 클래스를 제작했습니다.
+
+2. 💬 Phrasing Content 표준 준수 위쪽 말풍선 배치 (`#manual-add-item-hint-bubble`)
+   - W3C HTML 표준에 따라 `<button>` 태그 하위에 `<div>` 대신 **오직 `<span>` 요소로만** 어두운 슬레이트 배경(`#1e293b`)의 위쪽 말풍선을 인라인 작성했습니다.
+   - `pointer-events: none;`을 부여하여 말풍선 클릭 시에도 마우스 이벤트가 아래 버튼으로 100% 투과되도록 방어했습니다.
+
+3. 🔄 조건부 동적 스위칭 헬퍼 개발 및 2개 지점 결합 (`updateManualAddHint`)
+   - `globalSelections.size === 0` (표가 비어있는 온보딩 시작 상태) 조건에 따라 펄스 클래스 및 말풍선 노출(`display: block`/`none`)을 동적 스위칭하는 헬퍼 함수를 신설했습니다.
+   - **결합 지점 1**: 표 내용 재렌더링 전담 함수인 `populateEditScreen()` 끝.
+   - **결합 지점 2**: 편집화면 내부 수동 토글 켜기 시의 사각지대 방지를 위해 `initManualModeWizard()` 내 체크박스 `change` 핸들러 끝.
+   - 항목이 1개라도 추가되어 `globalSelections.size > 0`이 되면 즉시 말풍선과 펄스가 완전히 자동 소멸하도록 구현했습니다.
+
+4. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 6개 인라인 스크립트 파싱 검증 및 Red Team 5대 검사(독립 키프레임 신설, 기존 키프레임 보존, span 전용 래핑, pointer-events 투과성, 함수 & 2곳 호출 바인딩)를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-06) - [🛠️ 매뉴얼로 시작] 펄스 애니메이션 & "초보자 추천" 뱃지 탑재 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🌟 은은한 보라 펄스 독립 애니메이션 개발 (`@keyframes manualModeBtnPulse`)
+   - 기존의 미사용 `pulse` 키프레임(L2212)은 전혀 건드리지 않고 독립적으로 작성하여 향후 템플릿과의 충돌 가능성을 완전히 차단했습니다.
+   - 레이아웃이 찌그러지거나 클릭 영역이 흔들리지 않도록 `scale` 변경 없이 보라색 박스 섀도우 링(`rgba(139, 92, 246, 0.55)`)만 2.2초 간격으로 은은하게 퍼지는 펄스 효과를 부여했습니다.
+
+2. 🏷️ 고대비 "초보자 추천" 코너 패치 뱃지 추가 (`pointer-events: none`)
+   - `#header-manual-mode-btn` 우측 상단 코너(`top: -9px; right: -6px`)에 시인성이 탁월한 앰버 색상(`#f59e0b`)의 **"초보자 추천"** 뱃지 <span> 요소를 삽입했습니다.
+   - 뱃지 스타일에 `pointer-events: none;`을 필수로 부여하여, 뱃지 텍스트 부위를 마우스로 클릭하더라도 마우스 이벤트가 100% 아래 버튼으로 투과되어 WO-4 직행 로직이 차단 없이 안전하게 구동되도록 완벽히 방어했습니다.
+
+3. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 6개 인라인 스크립트 구문 파싱 검증 및 Red Team 4대 검사(독립 키프레임 신설, 기존 키프레임 무손상, pointer-events 투과성, animation 지정)를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-06) - 화면1 헤더 [🛠️ 매뉴얼로 시작] 직행 버튼 탑재 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🛠️ 화면1 헤더 [🛠️ 매뉴얼로 시작] 직행 버튼 개발 (`#header-manual-mode-btn`)
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) 화면1 헤더의 `📂 불러오기` 우측에 매뉴얼 브랜드 그래디언트 스타일이 적용된 `🛠️ 매뉴얼로 시작` 버튼을 배치했습니다.
+   - 클릭 시 `#manual-mode-toggle-checkbox`를 `checked = true` 및 `change` 이벤트를 발동시켜 기존 매뉴얼 모드 로직(localStorage 보존 및 `.manual-mode-active` 클래스 토글)을 100% 안전하게 재사용합니다.
+
+2. 🛡️ 이벤트 객체 누출 회귀 차단 및 디버그 alert 정밀 제거
+   - `showEditScreen(allowEmpty = false)` 매개변수를 도입하고, 기존 `goto-edit-btn`의 바인딩을 `() => showEditScreen()` 형태의 화살표 함수로 클로저 감싸서 `MouseEvent` 객체가 `allowEmpty`로 새어 들어가 미선택 진입 가드가 무력화되는 회귀 버그를 방지했습니다.
+   - `populateEditScreen()` 시작부의 임시 디버그 `alert("선택된 항목이 없습니다!...")` 및 `console.log` 블록을 깨끗하게 제거하여 팝업 없는 매끈한 매뉴얼 직행 UX를 완성했습니다.
+
+3. 🧪 무결성 검증 및 Red Team 자동화 검수 완료 (Error Count: 0)
+   - `index.html` 내 6개 인라인 스크립트 블록 구문 검증 및 4대 핵심 Red Team 체크포인트(클로저 감싸기, 매개변수 통과, 디버그 alert 제거, 버튼 배치) 자동화 검사를 100% 통과했습니다.
+
+---
+
+## 📅 작업 일지 (2026-08-06) - 사용자 가이드(manual.html) 갱신 및 앱 버전 v6.0.2 통일 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🏷️ 앱 전역 버전 번호 `v6.0.2` 일괄 통일
+   - `package.json` (`version`, `description`)
+   - `index.html` (`const APP_VERSION = "6.0.2"`, 스플래시 화면 HTML `v6.0.2`, AI 설정 패널 하드코딩 텍스트 `v6.0.2`)
+   - `manual.html` (헤더 제목, 시스템 안내, STEP 2-1/2-2, STEP 5-1, 푸터 등 6개 위치의 `v6.0b` ➔ `v6.0.2` 통일)
+
+2. 📘 사용자 가이드 `manual.html` 신규 기능 섹션 2종 추가
+   - **`STEP 3-1. 🛠️ 매뉴얼 모드 (신규 항목 마법사 & 셀별 AI 설정) (v6.0.2 신규 ✨)`**: 매뉴얼 모드 토글 켜기/끄기, 4단계 체이닝 마법사(`공종➔세부작업➔위험분류➔상세/위험도`) 및 원자적 DB 수용 안내, 유해위험요인/개선대책 ⚙️ 아이콘을 이용한 행별 AI 디테일(간결/보통/상세) 및 글자수 개별 지정 기능 문서화.
+   - **`STEP 5-2. 📏 인쇄 미리보기 표 여백 조절 (v6.0.2 신규 ✨)`**: 보고서 미리보기 제어 바의 `📏 표 여백` 패널(줄수 6~24줄, 행높이 15~45px) 위치 및 용도 안내, A4 1페이지 맞춤 정렬 기능, 3대 테마(정석/세련/미래) 공통 적용 및 인쇄 시 `.no-print` 자동 제외 명시.
+
+3. 🧪 무결성 검증 및 전수 정적 테스트 완료 (Error Count: 0)
+   - `node -c aiService.js`, `node -c main.js`, `package.json` JSON 검증, `index.html` 내 6개 인라인 스크립트 블록 전체 파싱 오류 0건 검증 완료.
+   - `grep` 기반 버전 잔여검사 결과 구버전 표기 누락 0건 확인.
+
+---
+
 ## 📅 작업 일지 (2026-08-06) - ⚠️ index.html 미커밋 작업 소실 사고 및 복구
 
 ### ⚠️ 사고 경위

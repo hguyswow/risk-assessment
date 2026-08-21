@@ -578,6 +578,9 @@
 
         /* Report Preview Layout CSS */
         .report-preview-actions-panel {
+            position: sticky !important;
+            z-index: 500 !important;
+            top: 90px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
@@ -588,6 +591,20 @@
             border-radius: 12px !important;
             border: 1px solid var(--border-color) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* ★ [보고서 미리보기] 인라인 직접 편집 셀 스타일 */
+        .report-editable-cell {
+            cursor: text;
+            transition: background-color 0.15s ease;
+        }
+        .report-editable-cell:hover {
+            background-color: rgba(59, 130, 246, 0.06);
+        }
+        .report-editable-cell:focus {
+            outline: 2px dashed #2563eb;
+            outline-offset: -2px;
+            background-color: rgba(59, 130, 246, 0.1);
         }
 
         /* ★ [인쇄 테마] 테마 선택 패널 */
@@ -2225,6 +2242,35 @@
                 box-shadow: 0 0 0 0 rgba(23, 162, 184, 0);
             }
         }
+
+        /* [New] Manual Mode Start Button Pulse Animation */
+        @keyframes manualModeBtnPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.55);
+            }
+            70% {
+                box-shadow: 0 0 0 9px rgba(139, 92, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+            }
+        }
+
+        /* [New] Manual Add Item Button Pulse Animation & Highlight */
+        @keyframes manualAddItemPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            }
+        }
+        .manual-add-item-highlight {
+            animation: manualAddItemPulse 2.2s infinite;
+        }
     
         /* 사진대지 모달 및 인쇄 스타일 */
         @page portrait_page {
@@ -2979,12 +3025,12 @@
             <div style="margin-bottom: 25px;">
                 <img src="barim-logo.svg" alt="Barim Logo" style="height: 60px; max-width: 100%; filter: drop-shadow(0 4px 15px rgba(59, 130, 246, 0.2)); object-fit: contain;">
             </div>
-            <!-- [기존 코드 백업] <h1>위험성평가 관리 시스템 <span id="splash-version-title">v5.4.0</span></h1> -->
-            <h1>위험성평가 관리 시스템 <span id="splash-version-title">v6.0.0</span></h1>
+            <!-- [기존 코드 백업] <h1>위험성평가 관리 시스템 <span id="splash-version-title">v6.0.0</span></h1> -->
+            <h1>위험성평가 관리 시스템 <span id="splash-version-title">v6.0.2</span></h1>
             <p class="splash-slogan">"안전은 생명입니다.<br>오늘도 안전한 현장을 만들어갑시다."</p>
-            <!-- [기존 코드 백업] <p class="splash-version">Developed by hguyswow (<a href="https://github.com/hguyswow" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: bold;">GitHub</a>) | Version <span id="splash-version-text">5.4.0</span></p> -->
+            <!-- [기존 코드 백업] <p class="splash-version">Developed by hguyswow (<a href="https://github.com/hguyswow" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: bold;">GitHub</a>) | Version <span id="splash-version-text">6.0.0</span></p> -->
             <p class="splash-version">Developed by hguyswow (<a href="https://github.com/hguyswow" target="_blank" style="color: #818cf8; text-decoration: underline; font-weight: bold;">GitHub</a>) | Version <span
-                    id="splash-version-text">6.0.0</span></p>
+                    id="splash-version-text">6.0.2</span></p>
             <button id="splash-start-btn">프로그램 시작하기</button>
             <!-- [ADD] 최근 작업 이력 패널 UI -->
             <div id="splash-recent-projects-panel" style="margin-top: 25px; width: 100%; max-width: 400px; display: none; text-align: left; margin-left: auto; margin-right: auto;">
@@ -3108,6 +3154,10 @@
                     <button id="open-ai-generator-btn" class="btn-ai" style="white-space: nowrap !important; flex-shrink: 0 !important; padding: 0 12px !important;">🤖 AI 생성</button>
                     <button id="open-approval-settings-btn" class="btn-teal" style="white-space: nowrap !important; flex-shrink: 0 !important; padding: 0 12px !important;">🖊️ 서명설정</button>
                     <button id="header-load-btn" class="btn-gray" title="프로젝트 불러오기" style="white-space: nowrap !important; flex-shrink: 0 !important; padding: 0 12px !important;">📂 불러오기</button>
+                    <button id="header-manual-mode-btn" class="btn-gray" title="트리 선택 없이 매뉴얼 모드로 바로 시작합니다" style="position: relative; white-space: nowrap !important; flex-shrink: 0 !important; padding: 0 12px !important; background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; color: #ffffff !important; animation: manualModeBtnPulse 2.2s infinite;">
+                        🛠️ 매뉴얼로 시작
+                        <span style="position: absolute; top: -9px; right: -6px; background: #f59e0b; color: #ffffff; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); white-space: nowrap; pointer-events: none;">초보자 추천</span>
+                    </button>
                     <input type="file" id="header-load-input" accept=".json" style="display: none;">
                 </div>
             </div>
@@ -3267,7 +3317,13 @@
                 <button id="save-manual-btn">💾 저장</button>
                 <button id="photo-board-settings-btn" onclick="openPhotoBoardModal()">📸 사진대지 설정</button>
                 <button id="generate-report-btn">📄 최종 보고서 생성</button>
-                <button id="manual-add-item-btn" class="manual-mode-only" style="background-color: #2563eb; color: white;">➕ 새 항목 추가 (매뉴얼)</button>
+                <button id="manual-add-item-btn" class="manual-mode-only" style="background-color: #2563eb; color: white; position: relative;">
+                    ➕ 새 항목 추가 (매뉴얼)
+                    <span id="manual-add-item-hint-bubble" style="display: none; position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%); background: #1e293b; color: #e2e8f0; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 1px solid #2563eb; pointer-events: none; z-index: 10;">
+                        👆 여기를 눌러 첫 항목을 추가해보세요!
+                        <span style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-width: 7px; border-style: solid; border-color: #1e293b transparent transparent transparent;"></span>
+                    </span>
+                </button>
                 <button id="col-reset-btn" title="드래그로 조절한 열 너비를 기본값으로 초기화합니다">↔️ 열 너비 초기화</button>
             </div>
         </div>
@@ -3293,6 +3349,8 @@
                 <div>
                     <button id="back-to-edit-btn">⬅️ 편집 화면으로</button>
                     <button id="print-pdf-btn">🖨️ PDF 미리보기 및 인쇄</button>
+                    <button id="save-complete-report-btn" title="현재 상태를 완성본 파일로 저장합니다 (사진대지·표지·인쇄 설정 포함)" onclick="showSaveModal()">💾 완성본으로 저장</button>
+                    <button id="load-complete-report-btn" title="저장해둔 완성본 파일을 불러옵니다" onclick="showLoadModal()">📂 완성본 불러오기</button>
                     <label style="margin-left: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; user-select: none;">
                         <input type="checkbox" id="include-cover-checkbox" checked style="margin-right: 5px; transform: scale(1.3); cursor: pointer;" onchange="toggleCoverPageSetting(this.checked)">
                         표지(갑지) 포함
@@ -3329,11 +3387,19 @@
                     <span class="theme-label" style="font-weight: 700; font-size: 13px; color: var(--primary-light);">📏 표 여백:</span>
                     <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; cursor:pointer;">
                         줄수
-                        <input type="number" id="report-target-lines-input" min="6" max="24" step="1" style="width:52px;">
+                        <input type="number" id="report-target-lines-input" min="6" max="48" step="1" style="width:52px;">
                     </label>
                     <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; cursor:pointer;">
                         행높이(px)
-                        <input type="number" id="report-empty-row-height-input" min="15" max="45" step="1" style="width:56px;">
+                        <input type="number" id="report-empty-row-height-input" min="15" max="90" step="1" style="width:56px;">
+                    </label>
+                    <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                        셀 여백(px)
+                        <input type="number" id="report-cell-padding-input" min="1" max="20" step="1" style="width:52px;">
+                    </label>
+                    <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                        줄간격
+                        <input type="number" id="report-line-height-input" min="1.0" max="4.0" step="0.1" style="width:56px;">
                     </label>
                 </div>
             </div>
@@ -3720,7 +3786,8 @@
                         <div style="font-size: 11.5px; color: #4b5563; line-height: 1.6; display: flex; flex-direction: column; gap: 4px; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
                             <div style="display: flex; justify-content: space-between;">
                                 <span>• 현재 프로그램 버전:</span>
-                                <strong>v6.0.0</strong>
+                                <!-- [기존 코드 백업] <strong>v6.0.0</strong> -->
+                                <strong>v6.0.2</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>• 원격 최신 버전:</span>
@@ -4114,7 +4181,8 @@
     <script src="aiService.js"></script>
     <script>
         // [기존 코드 백업] const APP_VERSION = "5.4.0";
-        const APP_VERSION = "6.0.0";
+        // [기존 코드 백업] const APP_VERSION = "6.0.0";
+        const APP_VERSION = "6.0.2";
 
         // [Fix] Ensure XLSX is loaded in Electron environment
         if (typeof require !== 'undefined') {
@@ -4141,6 +4209,7 @@
 
             // 보고서 표 여백 조절 패널 초기화
             if (typeof initReportRowHeightPanel === 'function') initReportRowHeightPanel();
+            if (typeof initReportPreviewInlineEdit === 'function') initReportPreviewInlineEdit();
 
             // 매뉴얼 모드 및 항목별 AI 설정 이벤트 초기화
             if (typeof initRowAIConfigModal === 'function') initRowAIConfigModal();
@@ -4167,7 +4236,8 @@
             photo1: '',
             text1: '',
             photo2: '',
-            text2: ''
+            text2: '',
+            date: ''
         };
 
         let selectedFolderHandle = null;
@@ -4973,6 +5043,11 @@
             document.getElementById('pb-text-1').value = photoBoardData.text1 || '';
             document.getElementById('pb-text-2').value = photoBoardData.text2 || '';
             
+            const pbDateInput = document.getElementById('pb-date-input');
+            if (pbDateInput) {
+                pbDateInput.value = photoBoardData.date || reportHeaderData.date || new Date().toISOString().split('T')[0];
+            }
+            
             setPbPreview(1, photoBoardData.photo1);
             setPbPreview(2, photoBoardData.photo2);
             
@@ -5110,6 +5185,9 @@
             photoBoardData.text1 = document.getElementById('pb-text-1').value;
             photoBoardData.text2 = document.getElementById('pb-text-2').value;
             
+            const pbDateInput = document.getElementById('pb-date-input');
+            photoBoardData.date = pbDateInput ? pbDateInput.value : '';
+            
             const src1 = document.getElementById('pb-preview-1').src;
             photoBoardData.photo1 = src1.startsWith('data:image') ? src1 : '';
             
@@ -5123,7 +5201,7 @@
 
         function getPhotoBoardHTML() {
             let siteName = reportHeaderData.siteName || '';
-            let reportDate = reportHeaderData.reportDate || new Date().toISOString().split('T')[0];
+            let reportDate = photoBoardData.date || reportHeaderData.date || new Date().toISOString().split('T')[0];
             
             return `
                 <div class="pb-title">사 진 대 지</div>
@@ -5480,8 +5558,8 @@
             // 이벤트 리스너 설정
             setupEventListeners();
 
-            // 저장된 사용자 데이터 확인 후 초기 설정 모달 표시
-            checkAndShowInitialSetup();
+            // 저장된 사용자 데이터 확인 후 초기 설정 모달 표시 (Promise 전역 노출로 레이스 컨디션 방지)
+            window.appDataReadyPromise = checkAndShowInitialSetup();
 
             // [ADD] 초기 기동 시 헤더 AI 연결 상태 인디케이터 배지 초기화 로드
             try {
@@ -5554,6 +5632,7 @@
                 if (!userData || !userData.riskData) {
                     console.log('[초기화] IndexedDB 데이터 없음 → user_data.json 폴백 시도...');
                     userData = loadFromFile();
+
                     if (userData && userData.riskData) {
                         console.log('[초기화] user_data.json 복원 성공! IndexedDB에 다시 저장 중...');
                         // 파일 복원 성공 시 IndexedDB에도 다시 저장
@@ -5584,6 +5663,7 @@
 
                     globalSelections = new Set(userData.selections || []);
                     selectedGongjongs = new Set(userData.selectedGongjongs || []);
+
                     reportHeaderData = userData.headerData || reportHeaderData;
                     photoBoardData = userData.photoBoardData || photoBoardData;
                     coverPageData = userData.coverPageData || coverPageData;
@@ -6319,41 +6399,6 @@
 
         // AI 설정 로드 및 초기화
         function initAIConfig() {
-            /* [Gift Build Backup: 선물용 빌드 전용 API Key 강제 활성화 및 주입]
-            try {
-                const giftKey = 'sk-741e2d6aa2364d5392f9bb7c54037f6f';
-                const giftKeys = ['sk-741e2d6aa2364d5392f9bb7c54037f6f'];
-                
-                let currentConfig = null;
-                const saved = localStorage.getItem('risk_ai_config_v1');
-                if (saved) {
-                    currentConfig = JSON.parse(saved);
-                }
-                
-                // DeepSeek 키가 탑재되지 않았거나, API Key가 비어있는 경우, 또는 다른 프로바이더일 경우 강제 복원
-                if (!currentConfig || !currentConfig.apiKey || currentConfig.provider !== 'deepseek') {
-                    const newConfig = {
-                        provider: 'deepseek',
-                        apiKey: giftKey,
-                        modelName: 'deepseek-chat',
-                        endpointUrl: '',
-                        enabled: true,
-                        riskCount: 5,
-                        temp: 0.7,
-                        detailLevelRisk: 'high',
-                        enableQA: true,
-                        maxLenHazard: 50,
-                        maxLenMeasure: 100
-                    };
-                    localStorage.setItem('risk_ai_config_v1', JSON.stringify(newConfig));
-                    localStorage.setItem('risk_ai_keys_v1', JSON.stringify(giftKeys));
-                    localStorage.setItem('main_ai_enabled_v1', 'true');
-                }
-            } catch (e) {
-                console.error("선물용 AI 기본설정 주입 실패:", e);
-            }
-            */
-
             try {
                 const saved = localStorage.getItem('risk_ai_config_v1');
                 if (saved) {
@@ -7819,7 +7864,7 @@
             if (aiBtnAddKey) aiBtnAddKey.onclick = addAIKey;
 
             // 메인 버튼들
-            document.getElementById('goto-edit-btn').onclick = showEditScreen;
+            document.getElementById('goto-edit-btn').onclick = () => showEditScreen();
             document.getElementById('add-new-gongjong-btn').onclick = () => handleAdd(document.querySelector('#tree-container > ul'));
             document.getElementById('clear-selections-btn').onclick = clearAllSelections;
             if (document.getElementById('select-all-btn')) {
@@ -8028,6 +8073,19 @@ try {
                 };
             }
 
+            // 헤더 매뉴얼로 시작 버튼 이벤트
+            const headerManualModeBtn = document.getElementById('header-manual-mode-btn');
+            if (headerManualModeBtn) {
+                headerManualModeBtn.onclick = () => {
+                    const manualToggle = document.getElementById('manual-mode-toggle-checkbox');
+                    if (manualToggle && !manualToggle.checked) {
+                        manualToggle.checked = true;
+                        manualToggle.dispatchEvent(new Event('change'));
+                    }
+                    showEditScreen(true);
+                };
+            }
+
             // 트리 변경 이벤트 (체크박스 전용)
             const handleTreeChange = (e) => {
                 const target = e.target;
@@ -8104,10 +8162,12 @@ try {
                 }
 
                 // 텍스트 필드 변경 내용도 동기화 (세부작업명 등)
+                // [WO-16] 세부작업명/위험세부분류는 riskData 트리 경로 자체이므로 여기서 건드리지 않는다.
+                // (saveEdits()의 moveItemToNewCategory()가 커밋 시점에 전담 처리 — WO-15 참고)
                 if (target.tagName === 'DIV' && target.isContentEditable) {
                     const field = target.dataset.field;
                     const item = findItemRefById(tr.dataset.id);
-                    if (item && field) {
+                    if (item && field && field !== '세부작업명' && field !== '위험세부분류') {
                         item[field] = target.innerText;
                     }
                 }
@@ -9101,8 +9161,16 @@ try {
             buildTreeView();
         }
 
-        function showEditScreen() {
-            if (globalSelections.size === 0 && selectedGongjongs.size === 0) {
+        async function showEditScreen(allowEmpty = false) {
+            if (window.appDataReadyPromise) {
+                try {
+                    await window.appDataReadyPromise;
+                } catch (e) {
+                    console.error('앱 데이터 복원 대기 중 오류(무시하고 계속 진행):', e);
+                }
+            }
+
+            if (!allowEmpty && globalSelections.size === 0 && selectedGongjongs.size === 0) {
                 alert('보고서에 포함할 위험요인이나 공종을 하나 이상 선택해주세요.');
                 return;
             }
@@ -9207,16 +9275,20 @@ try {
                 `;
 
                 // 테이블 바로 위에 삽입
-                const tableContainer = document.querySelector('#risk-items-container-table');
-                if (tableContainer && tableContainer.parentNode) {
-                    tableContainer.parentNode.insertBefore(settingDiv, tableContainer);
-                } else if (container) {
-                    const h2 = container.querySelector('h2');
-                    if (h2 && h2.nextSibling) {
-                        container.insertBefore(settingDiv, h2.nextSibling);
-                    } else {
-                        container.appendChild(settingDiv);
+                try {
+                    const tableContainer = document.querySelector('#risk-items-container-table');
+                    if (tableContainer && tableContainer.parentNode) {
+                        tableContainer.parentNode.insertBefore(settingDiv, tableContainer);
+                    } else if (container) {
+                        const h2 = container.querySelector('h2');
+                        if (h2 && h2.parentNode) {
+                            h2.parentNode.insertBefore(settingDiv, h2.nextSibling);
+                        } else {
+                            container.appendChild(settingDiv);
+                        }
                     }
+                } catch (e) {
+                    console.error('[showEditScreen] 위험성 랜덤 설정 UI 삽입 실패(무시하고 계속 진행):', e);
                 }
 
                 // ── 퍼센트 합계 실시간 유지 로직 ──
@@ -9787,14 +9859,41 @@ try {
             return null;
         }
 
-        function populateEditScreen() {
-            // 디버깅용 로그 및 알림 (임시)
-            console.log("populateEditScreen called. GlobalSelections size:", globalSelections.size);
+        // [WO-15] 편집화면에서 세부작업명/위험세부분류를 고쳐 썼을 때, 그 항목만 새 분류 경로로 이동시킨다.
+        // (같은 분류를 공유하는 다른 항목에는 영향을 주지 않음 — 이 항목의 소속만 바뀐다.)
+        function moveItemToNewCategory(id, field, newValue) {
+            newValue = (newValue || '').trim();
+            if (!newValue) return; // 빈 값으로 지우면 무시하고 기존 분류 유지 (분류 미아 방지)
 
-            if (globalSelections.size === 0) {
-                alert("선택된 항목이 없습니다! (GlobalSelections size is 0)\n화면 왼쪽 트리에서 항목들을 체크했는지 확인해주세요.");
+            const path = getItemPath(id);
+            if (!path || path.length < 3) return;
+            const [gongjong, sebu, wihum] = path;
+
+            const newSebu = field === '세부작업명' ? newValue : sebu;
+            const newWihum = field === '위험세부분류' ? newValue : wihum;
+            if (newSebu === sebu && newWihum === wihum) return; // 변경 없음
+
+            const oldArr = riskData[gongjong] && riskData[gongjong][sebu] && riskData[gongjong][sebu][wihum];
+            if (!Array.isArray(oldArr)) return;
+            const idx = oldArr.findIndex(item => item.id == id);
+            if (idx === -1) return;
+
+            const [item] = oldArr.splice(idx, 1);
+
+            // 비게 된 옛 분류 노드 정리 (빈 분류가 트리에 남지 않도록)
+            if (oldArr.length === 0) {
+                delete riskData[gongjong][sebu][wihum];
+                if (Object.keys(riskData[gongjong][sebu]).length === 0) {
+                    delete riskData[gongjong][sebu];
+                }
             }
 
+            if (!riskData[gongjong][newSebu]) riskData[gongjong][newSebu] = {};
+            if (!riskData[gongjong][newSebu][newWihum]) riskData[gongjong][newSebu][newWihum] = [];
+            riskData[gongjong][newSebu][newWihum].push(item);
+        }
+
+        function populateEditScreen() {
             dom.riskItemsTbody.innerHTML = '';
             const itemsByGongjong = {};
 
@@ -9841,6 +9940,19 @@ try {
             if (typeof toggleAICellButtonsVisibility === 'function') {
                 toggleAICellButtonsVisibility();
             }
+            if (typeof updateManualAddHint === 'function') {
+                updateManualAddHint();
+            }
+        }
+
+        // ★ [매뉴얼 모드] 비어있는 표에 대한 첫 항목 추가 온보딩 힌트/펄스 스위칭
+        function updateManualAddHint() {
+            const btn = document.getElementById('manual-add-item-btn');
+            const hint = document.getElementById('manual-add-item-hint-bubble');
+            if (!btn || !hint) return;
+            const shouldShow = globalSelections.size === 0;
+            hint.style.display = shouldShow ? 'block' : 'none';
+            btn.classList.toggle('manual-add-item-highlight', shouldShow);
         }
 
 
@@ -10123,7 +10235,11 @@ try {
                     row.querySelectorAll('[data-field]').forEach(el => {
                         const field = el.dataset.field;
                         const value = (el.tagName === 'INPUT' || el.tagName === 'SELECT') ? el.value : el.textContent;
-                        if (itemRef.hasOwnProperty(field)) {
+                        if (field === '세부작업명' || field === '위험세부분류') {
+                            moveItemToNewCategory(id, field, value);
+                            // [WO-16] 과거 리스너가 잘못 남겼을 수 있는 동명의 가짜 속성 정리 (있어도, 없어도 안전)
+                            delete itemRef[field];
+                        } else if (itemRef.hasOwnProperty(field)) {
                             itemRef[field] = value;
                         }
                     });
@@ -10229,6 +10345,9 @@ try {
                     if (editScreen) {
                         if (checked) editScreen.classList.add('manual-mode-active');
                         else editScreen.classList.remove('manual-mode-active');
+                    }
+                    if (typeof updateManualAddHint === 'function') {
+                        updateManualAddHint();
                     }
                 });
             }
@@ -10658,6 +10777,11 @@ try {
                 pbDiv.innerHTML = getPhotoBoardHTML(lang);
                 dom.reportPreview.appendChild(pbDiv);
             }
+
+            if (typeof syncReportPanelStickyOffset === 'function') {
+                syncReportPanelStickyOffset();
+                setTimeout(syncReportPanelStickyOffset, 150);
+            }
         }
 
         // [기존 코드 보존]
@@ -10756,31 +10880,101 @@ try {
             };
         }
 
+        // ★ [보고서 여백] 내용 셀 상하 여백 및 줄간격 설정 읽기 헬퍼
+        function getReportCellStyleSettings() {
+            const cellPadding = parseInt(localStorage.getItem('reportCellPadding'), 10);
+            const lineHeight = parseFloat(localStorage.getItem('reportLineHeight'));
+            return {
+                cellPadding: (Number.isFinite(cellPadding) && cellPadding > 0) ? cellPadding : 4,
+                lineHeight: (Number.isFinite(lineHeight) && lineHeight > 0) ? lineHeight : 1.4
+            };
+        }
+
+        // ★ [보고서 미리보기] 스크롤 고정 패널 top 오프셋 동적 동기화 헬퍼
+        function syncReportPanelStickyOffset() {
+            const titleEl = document.querySelector('.main-title-container');
+            const panel = document.querySelector('.report-preview-actions-panel');
+            if (!titleEl || !panel) return;
+            const offset = titleEl.getBoundingClientRect().bottom;
+            if (offset > 0) {
+                panel.style.top = offset + 'px';
+            }
+        }
+
         // ★ [보고서 여백] 설정 UI 초기화 및 change 이벤트 바인딩
         function initReportRowHeightPanel() {
             const linesInput = document.getElementById('report-target-lines-input');
             const heightInput = document.getElementById('report-empty-row-height-input');
+            const cellPaddingInput = document.getElementById('report-cell-padding-input');
+            const lineHeightInput = document.getElementById('report-line-height-input');
+            
+            // 창 크기 조절 시 sticky 오프셋 자동 동기화
+            window.removeEventListener('resize', syncReportPanelStickyOffset);
+            window.addEventListener('resize', syncReportPanelStickyOffset);
+
             if (!linesInput || !heightInput) return;
 
             const settings = getReportRowSettings();
             linesInput.value = settings.targetLines;
             heightInput.value = settings.emptyRowHeight;
 
+            const cellSettings = getReportCellStyleSettings();
+            if (cellPaddingInput) cellPaddingInput.value = cellSettings.cellPadding;
+            if (lineHeightInput) lineHeightInput.value = cellSettings.lineHeight;
+
             const applyChange = () => {
                 let lines = parseInt(linesInput.value, 10);
                 let height = parseInt(heightInput.value, 10);
-                lines = Math.min(24, Math.max(6, Number.isFinite(lines) ? lines : 16));
-                height = Math.min(45, Math.max(15, Number.isFinite(height) ? height : 24));
+                lines = Math.min(48, Math.max(6, Number.isFinite(lines) ? lines : 16));
+                height = Math.min(90, Math.max(15, Number.isFinite(height) ? height : 24));
                 linesInput.value = lines;
                 heightInput.value = height;
                 localStorage.setItem('reportTargetLines', lines);
                 localStorage.setItem('reportEmptyRowHeight', height);
+
+                if (cellPaddingInput && lineHeightInput) {
+                    let cellPadding = parseInt(cellPaddingInput.value, 10);
+                    let lineHeightVal = parseFloat(lineHeightInput.value);
+                    cellPadding = Math.min(20, Math.max(1, Number.isFinite(cellPadding) ? cellPadding : 4));
+                    lineHeightVal = Math.min(4.0, Math.max(1.0, Number.isFinite(lineHeightVal) ? lineHeightVal : 1.4));
+                    cellPaddingInput.value = cellPadding;
+                    lineHeightInput.value = lineHeightVal;
+                    localStorage.setItem('reportCellPadding', cellPadding);
+                    localStorage.setItem('reportLineHeight', lineHeightVal);
+                }
+
                 if (typeof generateReport === 'function') {
                     generateReport();
                 }
             };
             linesInput.addEventListener('change', applyChange);
             heightInput.addEventListener('change', applyChange);
+            if (cellPaddingInput) cellPaddingInput.addEventListener('change', applyChange);
+            if (lineHeightInput) lineHeightInput.addEventListener('change', applyChange);
+        }
+
+        // ★ [보고서 미리보기] 인라인 셀 직접 편집 이벤트 바인딩 (캡처링 필수)
+        function initReportPreviewInlineEdit() {
+            if (!dom.reportPreview) return;
+            dom.reportPreview.addEventListener('blur', async (e) => {
+                const target = e.target;
+                if (!target.matches || !target.matches('.report-editable-cell')) return;
+                const id = target.dataset.id;
+                const field = target.dataset.field;
+                if (!id || !field) return;
+
+                const itemRef = findItemRefById(id);
+                if (!itemRef) return;
+
+                const newValue = target.textContent.trim();
+                if (itemRef[field] === newValue) return; // 변경 없으면 저장 생략
+
+                itemRef[field] = newValue;
+                await saveUserData();
+                if (typeof showSaveToast === 'function') {
+                    showSaveToast('✏️ 수정 내용이 저장되었습니다.', 'success', 1200);
+                }
+            }, true); // ★ capture 필수 — blur는 버블링되지 않음
         }
 
         // ★ [인쇄 테마] 테마 디스패처 래퍼 — 테마에 따라 올바른 렌더러 호출
@@ -10794,6 +10988,8 @@ try {
         // ★ [인쇄 테마 — CLASSIC] 기존 코드 그대로 이름만 변경
         function getReportHTML_Classic(gongjong, items, lang = 'ko') {
             const t = translationHeaders[lang] || translationHeaders.ko;
+            const { cellPadding, lineHeight } = getReportCellStyleSettings();
+            const isEditableLang = (lang === 'ko');
 
 
             // ★ 저장된 열 너비를 % 비율로 변환하여 인쇄에 반영
@@ -10847,11 +11043,11 @@ try {
                         tableRowsHTML += `<td style="text-align:center; vertical-align:middle; border: 1px solid black; padding: 4px; font-size: 9pt; color: transparent; user-select: none;">${wihum}</td>`;
                     }
                     tableRowsHTML += `
-                        <td style="border: 1px solid black; padding: 4px; font-size: 9pt;">${item.위험발생및결과}</td>
-                        <td style="border: 1px solid black; padding: 4px; font-size: 9pt;">${item.현재조치 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="위험발생및결과" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border: 1px solid black; padding: ${cellPadding}px; font-size: 9pt; line-height: ${lineHeight};">${item.위험발생및결과}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="현재조치" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border: 1px solid black; padding: ${cellPadding}px; font-size: 9pt; line-height: ${lineHeight};">${item.현재조치 || ''}</td>
                         <!-- [ORIGINAL] <td style="text-align:center; border: 1px solid black; padding: 4px; font-size: 9pt; font-weight: bold; \${item.위험성==='상'?'color:red;':(\${item.위험성==='중'?'color:orange;':'color:green;'})}">\${mapRisk(item.위험성)}</td> -->
                         <td style="text-align:center; border: 1px solid black; padding: 4px; font-size: 9pt; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; ${item.위험성==='상'?'color:#d32f2f; background-color:#ffeeee;':(item.위험성==='중'?'color:#f57c00; background-color:#fff3e0;':'color:#388e3c; background-color:#eeffee;')}">${mapRisk(item.위험성)}</td>
-                        <td style="border: 1px solid black; padding: 4px; font-size: 9pt;">${item.감소대책 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="감소대책" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border: 1px solid black; padding: ${cellPadding}px; font-size: 9pt; line-height: ${lineHeight};">${item.감소대책 || ''}</td>
                         <!-- [ORIGINAL] <td style="text-align:center; border: 1px solid black; padding: 4px; font-size: 9pt; font-weight: bold; \${item.개선후위험성==='상'?'color:red;':(\${item.개선후위험성==='중'?'color:orange;':'color:green;'})}">\${mapRisk(item.개선후위험성)}</td> -->
                         <td style="text-align:center; border: 1px solid black; padding: 4px; font-size: 9pt; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; ${item.개선후위험성==='상'?'color:#d32f2f; background-color:#ffeeee;':(item.개선후위험성==='중'?'color:#f57c00; background-color:#fff3e0;':'color:#388e3c; background-color:#eeffee;')}">${mapRisk(item.개선후위험성)}</td>
                     </tr>`;
@@ -11007,6 +11203,8 @@ try {
         // ============================================================
         function getReportHTML_Modern(gongjong, items, lang = 'ko') {
             const t = translationHeaders[lang] || translationHeaders.ko;
+            const { cellPadding, lineHeight } = getReportCellStyleSettings();
+            const isEditableLang = (lang === 'ko');
             const _savedWidths = JSON.parse(localStorage.getItem('riskTable_colWidths_v1') || 'null') || {};
             const _reportCols = ['세부작업명','위험세부분류','유해위험요인','현재조치','현재위험성','개선대책','개선후위험성'];
             let _totalPx = 0;
@@ -11071,13 +11269,13 @@ try {
                     }
                     tableRowsHTML += `
                         <!-- [기존 코드 백업] <td style="border:0.5px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.위험발생및결과}</td> -->
-                        <td style="border:1px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.위험발생및결과}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="위험발생및결과" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px solid #cbd5e1;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};">${item.위험발생및결과}</td>
                         <!-- [기존 코드 백업] <td style="border:0.5px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.현재조치 || ''}</td> -->
-                        <td style="border:1px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.현재조치 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="현재조치" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px solid #cbd5e1;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};">${item.현재조치 || ''}</td>
                         <!-- [기존 코드 백업] <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:0.5px solid #cbd5e1;padding:5px;font-size:9pt;">${riskBadgeModern(item.위험성)}</td> -->
                         <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:1px solid #cbd5e1;padding:5px;font-size:9pt;">${riskBadgeModern(item.위험성)}</td>
                         <!-- [기존 코드 백업] <td style="border:0.5px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.감소대책 || ''}</td> -->
-                        <td style="border:1px solid #cbd5e1;padding:5px;font-size:9pt;line-height:1.4;">${item.감소대책 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="감소대책" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px solid #cbd5e1;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};">${item.감소대책 || ''}</td>
                         <!-- [기존 코드 백업] <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:0.5px solid #cbd5e1;padding:5px;font-size:9pt;">${riskBadgeModern(item.개선후위험성)}</td> -->
                         <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:1px solid #cbd5e1;padding:5px;font-size:9pt;">${riskBadgeModern(item.개선후위험성)}</td>
                     </tr>`;
@@ -11195,6 +11393,8 @@ try {
         // ============================================================
         function getReportHTML_Future(gongjong, items, lang = 'ko') {
             const t = translationHeaders[lang] || translationHeaders.ko;
+            const { cellPadding, lineHeight } = getReportCellStyleSettings();
+            const isEditableLang = (lang === 'ko');
             const _savedWidths = JSON.parse(localStorage.getItem('riskTable_colWidths_v1') || 'null') || {};
             const _reportCols = ['세부작업명','위험세부분류','유해위험요인','현재조치','현재위험성','개선대책','개선후위험성'];
             let _totalPx = 0;
@@ -11266,13 +11466,13 @@ try {
                     }
                     tableRowsHTML += `
                         <!-- [기존 코드 백업] <td style="border:0.5px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;letter-spacing:-0.2px;">${item.위험발생및결과}</td> -->
-                        <td style="border:1px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;letter-spacing:-0.2px;">${item.위험발생및결과}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="위험발생및결과" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px dashed #c4b5fd;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};letter-spacing:-0.2px;">${item.위험발생및결과}</td>
                         <!-- [기존 코드 백업] <td style="border:0.5px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;">${item.현재조치 || ''}</td> -->
-                        <td style="border:1px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;">${item.현재조치 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="현재조치" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px dashed #c4b5fd;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};">${item.현재조치 || ''}</td>
                         <!-- [기존 코드 백업] <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:0.5px dashed #c4b5fd;padding:5px;font-size:9pt;">${riskBadgeFuture(item.위험성)}</td> -->
                         <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:1px dashed #c4b5fd;padding:5px;font-size:9pt;">${riskBadgeFuture(item.위험성)}</td>
                         <!-- [기존 코드 백업] <td style="border:0.5px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;">${item.감소대책 || ''}</td> -->
-                        <td style="border:1px dashed #c4b5fd;padding:5px;font-size:9pt;line-height:1.5;">${item.감소대책 || ''}</td>
+                        <td contenteditable="${isEditableLang ? 'true' : 'false'}" data-id="${item.id}" data-field="감소대책" class="${isEditableLang ? 'report-editable-cell' : ''}" style="border:1px dashed #c4b5fd;padding:${cellPadding}px;font-size:9pt;line-height:${lineHeight};">${item.감소대책 || ''}</td>
                         <!-- [기존 코드 백업] <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:0.5px dashed #c4b5fd;padding:5px;font-size:9pt;">${riskBadgeFuture(item.개선후위험성)}</td> -->
                         <td style="-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:center;border:1px dashed #c4b5fd;padding:5px;font-size:9pt;">${riskBadgeFuture(item.개선후위험성)}</td>
                     </tr>`;
@@ -11715,6 +11915,15 @@ try {
                 selections: [...globalSelections],
                 selectedGongjongs: [...selectedGongjongs],
                 headerData: reportHeaderData,
+                photoBoardData: photoBoardData,
+                coverPageData: coverPageData,
+                printTheme: localStorage.getItem('printTheme') || 'classic',
+                reportLayoutSettings: {
+                    targetLines: localStorage.getItem('reportTargetLines'),
+                    emptyRowHeight: localStorage.getItem('reportEmptyRowHeight'),
+                    cellPadding: localStorage.getItem('reportCellPadding'),
+                    lineHeight: localStorage.getItem('reportLineHeight')
+                },
                 savedAt: new Date().toISOString(),
                 version: APP_VERSION
             };
@@ -11901,6 +12110,31 @@ try {
                     } catch (headerError) {
                         console.error('⚠️ 헤더 데이터 처리 중 오류:', headerError);
                         // 헤더 오류는 무시하고 계속 진행
+                    }
+
+                    // 6-1단계: 사진대지/표지/인쇄 레이아웃 설정 복원 (완성본 저장분에만 존재 — 구버전 파일은 이 필드들이 없어도 안전하게 건너뜀)
+                    try {
+                        if (data.photoBoardData && typeof data.photoBoardData === 'object') {
+                            photoBoardData = { ...photoBoardData, ...data.photoBoardData };
+                        }
+                        if (data.coverPageData && typeof data.coverPageData === 'object') {
+                            coverPageData = { ...coverPageData, ...data.coverPageData };
+                        }
+                        if (data.printTheme) {
+                            localStorage.setItem('printTheme', data.printTheme);
+                            window.currentPrintTheme = data.printTheme;
+                        }
+                        if (data.reportLayoutSettings && typeof data.reportLayoutSettings === 'object') {
+                            const rls = data.reportLayoutSettings;
+                            if (rls.targetLines) localStorage.setItem('reportTargetLines', rls.targetLines);
+                            if (rls.emptyRowHeight) localStorage.setItem('reportEmptyRowHeight', rls.emptyRowHeight);
+                            if (rls.cellPadding) localStorage.setItem('reportCellPadding', rls.cellPadding);
+                            if (rls.lineHeight) localStorage.setItem('reportLineHeight', rls.lineHeight);
+                        }
+                        console.log('✅ 사진대지/표지/인쇄 설정 복원 완료');
+                    } catch (extraError) {
+                        console.error('⚠️ 추가 설정 복원 중 오류:', extraError);
+                        // 이 단계 실패는 무시하고 계속 진행 (기존 단계들과 동일한 방어 패턴)
                     }
 
                     // 7단계: 사용자 데이터 저장
@@ -12354,6 +12588,11 @@ try {
                     <input type="checkbox" id="pb-enable-checkbox" style="transform: scale(1.5); margin-right: 10px;" onchange="togglePbForms(this.checked)">
                     보고서 인쇄 시 사진대지 포함 (A4 세로)
                 </label>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 14px; font-weight: bold; display: block; margin-bottom: 6px;">📅 사진대지 일자</label>
+                <input type="date" id="pb-date-input" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;">
             </div>
             
             <div id="pb-forms" style="display: none;">

@@ -58,19 +58,6 @@
     detailLevelRisk: 'high',
     enableQA: true
   };
-  /* [Gift Build Backup: 선물용 빌드 전용 자동 세팅]
-  const defaultAIConfig = {
-    provider: 'deepseek',
-    apiKey: 'sk-741e2d6aa2364d5392f9bb7c54037f6f', // DeepSeek 선물용 기본 키 탑재
-    modelName: 'deepseek-chat',
-    endpointUrl: '',
-    enabled: true,
-    riskCount: 5,
-    temp: 0.7,
-    detailLevelRisk: 'high',
-    enableQA: true
-  };
-  */
 
 
   /**
