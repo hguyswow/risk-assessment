@@ -1,4 +1,4 @@
-﻿# Node.js
+# Node.js
 v5_build/node_modules/
 node_modules/
 
@@ -23,6 +23,10 @@ v5_build/aiService.js.bak
 backup/
 v5.2.1_backup/
 v5_build_backup/
-v5_build_backup_v5.0/
-v5_build_backup_v5.2/
-v5_build_backup_v5.2.1/
+v5_build_backup_*/
+v5_build/index.html.SNAPSHOT*
+v5_build/index_backup*
+scratch/
+v5_build/scratch/
+.agents/
+

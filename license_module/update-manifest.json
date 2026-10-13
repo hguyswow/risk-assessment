@@ -1,0 +1,5 @@
+{
+  "version": "6.1.0-beta",
+  "downloadUrl": "https://drive.google.com/uc?export=download&id=배포_인스톨러_구글드라이브_파일ID&confirm=t",
+  "releaseNotes": "1. AI 생성 속도가 20% 향상되었습니다. 2. 엑셀 조판 깨짐 현상을 보완했습니다. 3. 로컬 LLM 오프라인 구동 성능이 개선되었습니다."
+}

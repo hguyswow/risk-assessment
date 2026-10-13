@@ -1212,9 +1212,10 @@ ${expectedJsonSchema}
   }
 
   /**
-   * 위험성평가 데이터 일괄 다국어 번역 수행
+   * 위험성평가 데이터 일괄 다국어 번역 수행 (v6.5.0 고도화)
+   * OpenRouter/DeepSeek의 json_object 제약에 맞춰 { siteName, translations: [...] } 객체 스키마 적용 및 정규화
    */
-  async function translateRiskAssessment(items, targetLang, config, signal = null) {
+  async function translateRiskAssessment(items, targetLang, config, signal = null, extraContext = {}) {
     const temp = 0.3; // 번역의 정확성 및 일관성을 위해 온도를 낮춤
     const langNames = {
       en: "English (영어)",
@@ -1223,44 +1224,6 @@ ${expectedJsonSchema}
       mn: "Mongolian (몽골어)"
     };
     const targetLangName = langNames[targetLang] || targetLang;
-
-    /* [기존 코드 보존]
-    const rawPayload = items.map((item, idx) => ({
-      idx,
-      sebu: item.sebu || '',
-      wihum: item.wihum || '',
-      위험발생및결과: item.위험발생및결과 || '',
-      현재조치: item.현재조치 || '',
-      감소대책: item.감소대책 || ''
-    }));
-
-    const prompt = `
-당신은 건설 안전보건 분야에 전문화된 대한민국 번역가입니다.
-제시된 위험성평가 데이터(JSON 배열)를 분석하여 각 필드의 내용을 자연스럽고 전문적인 [${targetLangName}]로 정확하게 1:1 대조 번역하십시오.
-
-★ [번역 규칙 - 절대 준수]:
-1. 임의로 위험성 내용을 창작하거나 안전 조치를 가공하여 추가하지 마십시오. 오직 원문 그대로 번역만 수행해야 합니다.
-2. 텍스트 내의 수치 기준(예: 2m, 1.5m 등) 및 법적 조항(예: 규칙 제32조, 제42조 등)은 절대 변경하지 말고 그대로 번역어와 조화롭게 포함하여 유지하십시오.
-3. 건설 분야 실무 장비 명칭(예: Table Lift, 스카이 장비, 굴착기 등)은 글로벌 표준 건설 용어 또는 현지 실무어로 명확하게 대칭 번역하십시오.
-4. 부가적인 주석, 서론/결론, 백틱 기호(예: \`\`\`) 등은 최종 결과물에 절대로 포함하지 마십시오. 순수한 JSON 배열만 출력하십시오.
-
-번역할 원본 데이터 (JSON):
-${JSON.stringify(rawPayload, null, 2)}
-
-반환할 JSON 구조 스키마 (배열):
-[
-  {
-    "idx": 0,
-    "sebu": "번역된 세부작업명",
-    "wihum": "번역된 위험세부분류",
-    "위험발생및결과": "번역된 유해위험요인",
-    "현재조치": "번역된 현재 안전보건 조치",
-    "감소대책": "번역된 감소대책"
-  },
-  ...
-]
-`;
-    */
 
     // 번역에 필요한 텍스트 정보만 간소화하여 전송 (대분류 공종명 gongjong 추가)
     const rawPayload = items.map((item, idx) => ({
@@ -1273,42 +1236,87 @@ ${JSON.stringify(rawPayload, null, 2)}
       감소대책: item.감소대책 || ''
     }));
 
+    const siteNameText = (extraContext && extraContext.siteName) ? String(extraContext.siteName).trim() : '';
+    const siteNameSection = siteNameText ? `\n- 번역할 현장명(siteName): "${siteNameText}"` : '';
+
     const prompt = `
-당신은 건설 안전보건 분야에 전문화된 대한민국 번역가입니다.
-제시된 위험성평가 데이터(JSON 배열)를 분석하여 각 필드의 내용을 자연스럽고 전문적인 [${targetLangName}]로 정확하게 1:1 대조 번역하십시오.
+당신은 대한민국 고용노동부 및 한국산업안전보건공단(KOSHA) 기준에 정통한 건설안전보건 전문 번역가입니다.
+제시된 위험성평가 데이터(JSON)를 분석하여 각 필드의 내용을 자연스럽고 전문적인 [${targetLangName}]로 정확하게 1:1 대조 번역하십시오.
 
 ★ [번역 규칙 - 절대 준수]:
 1. 임의로 위험성 내용을 창작하거나 안전 조치를 가공하여 추가하지 마십시오. 오직 원문 그대로 번역만 수행해야 합니다.
 2. 텍스트 내의 수치 기준(예: 2m, 1.5m 등) 등 원문에 포함된 수치는 절대 변경하지 말고 그대로 번역어와 조화롭게 포함하여 유지하십시오.
 3. 건설 분야 실무 장비 명칭(예: Table Lift, 스카이 장비, 굴착기 등)은 글로벌 표준 건설 용어 또는 현지 실무어로 명확하게 대칭 번역하십시오.
-4. 부가적인 주석, 서론/결론, 백틱 기호(예: \`\`\`) 등은 최종 결과물에 절대로 포함하지 마십시오. 순수한 JSON 배열만 출력하십시오.
+4. 부가적인 주석, 서론/결론, 백틱 기호(예: \`\`\`) 등은 최종 결과물에 절대로 포함하지 마십시오. 반드시 지정된 순수 JSON 객체 포맷만 출력하십시오.
 
-번역할 원본 데이터 (JSON):
+번역할 원본 데이터:${siteNameSection}
 ${JSON.stringify(rawPayload, null, 2)}
 
-반환할 JSON 구조 스키마 (배열):
-[
-  {
-    "idx": 0,
-    "gongjong": "번역된 대분류 공종명",
-    "sebu": "번역된 세부작업명",
-    "wihum": "번역된 위험세부분류",
-    "위험발생및결과": "번역된 유해위험요인",
-    "현재조치": "번역된 현재 안전보건 조치",
-    "감소대책": "번역된 감소대책"
-  },
-  ...
-]
+반환할 JSON 구조 스키마 (반드시 아래 JSON 객체 포맷으로만 응답):
+{
+  ${siteNameText ? `"siteName": "번역된 현장명",` : ''}
+  "translations": [
+    {
+      "idx": 0,
+      "gongjong": "번역된 대분류 공종명",
+      "sebu": "번역된 세부작업명",
+      "wihum": "번역된 위험세부분류",
+      "위험발생및결과": "번역된 유해위험요인",
+      "현재조치": "번역된 현재 안전보건 조치",
+      "감소대책": "번역된 감소대책"
+    }
+  ]
+}
 `;
 
     try {
       const responseText = await callAIAPI(prompt, config, temp, signal);
-      // [PATCH] AI 다국어 번역 결과 JSON 파싱 시 안전 슬라이싱 추출 헬퍼 적용
       const parsedData = extractJson(responseText);
-      return parsedData;
+
+      // 다중 AI 모델(DeepSeek, OpenRouter, Gemini, 로컬LLM) 응답 형태 정규화
+      let list = [];
+      if (Array.isArray(parsedData)) {
+        list = parsedData;
+      } else if (parsedData && typeof parsedData === 'object') {
+        if (Array.isArray(parsedData.translations)) list = parsedData.translations;
+        else if (Array.isArray(parsedData.items)) list = parsedData.items;
+        else if (Array.isArray(parsedData.data)) list = parsedData.data;
+        else if (Array.isArray(parsedData.result)) list = parsedData.result;
+        else if (Array.isArray(parsedData.risk_assessment)) list = parsedData.risk_assessment;
+        else {
+          const vals = Object.values(parsedData);
+          const foundArr = vals.find(v => Array.isArray(v));
+          if (foundArr) {
+            list = foundArr;
+          } else if (parsedData.sebu || parsedData.wihum || parsedData['위험발생및결과'] || parsedData.hazard) {
+            list = [parsedData];
+          }
+        }
+      }
+
+      // 입력된 원본 items와 1:1 보정 매핑 (단 한 줄도 누락되지 않도록 방어)
+      const normalized = items.map((orig, i) => {
+        const found = list.find(item => item && (item.idx === i || item.idx === orig.idx)) || list[i] || {};
+        return {
+          idx: i,
+          gongjong: found.gongjong || found.workType || orig.gongjong || '',
+          sebu: found.sebu || found.detailedWork || orig.sebu || '',
+          wihum: found.wihum || found.riskClassification || orig.wihum || '',
+          위험발생및결과: found.위험발생및결과 || found.hazard || found.hazardsAndRisks || orig.위험발생및결과 || '',
+          현재조치: found.현재조치 || found.currentMeasure || found.currentSafetyMeasures || orig.현재조치 || '',
+          감소대책: found.감소대책 || found.action || found.reductionMeasure || found.reductionMeasures || orig.감소대책 || ''
+        };
+      });
+
+      // 현장명 번역 결과가 객체에 있으면 배열 속성으로 함께 보존
+      if (parsedData && typeof parsedData === 'object' && parsedData.siteName) {
+        normalized.siteName = String(parsedData.siteName).trim();
+      }
+
+      return normalized;
     } catch (e) {
       console.error("AI 다국어 번역 응답 해석 실패. 원본 응답:", e);
-      throw new Error(`AI 다국어 번역 처리에 실패했습니다. 다시 시도해 주세요.\\n[상세]: ${e.message}`);
+      throw new Error(`AI 다국어 번역 처리에 실패했습니다. 다시 시도해 주세요.\n[상세]: ${e.message}`);
     }
   }
 

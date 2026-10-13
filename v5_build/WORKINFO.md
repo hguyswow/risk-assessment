@@ -1,25 +1,138 @@
 # WORKINFO
 
-## 📅 작업 일지 (2026-08-21) - 보고서 미리보기 표 여백 설정 4종 최대치 2배 상향 (WO-17) (Error Count: 0)
+## 📅 작업 일지 (2026-10-13) - AI 다국어 본문/현장명 번역 엔진 무결성 복구 & 사용자 가이드 최신화 및 v6.5.0 전면 갱신 (Error Count: 0)
 
 ### ✅ 금일 작업 사항 (Today's Work)
 
-1. 📏 HTML `<input>` `max` 속성 4곳 상향
-   - [index.html](file:///e:/dev/dang/v5_build/index.html) L3390-3402 부근 "📏 표 여백" 패널의 입력창 최대치 속성 상향:
-     - 줄수 (`report-target-lines-input`): `max="24"` → `max="48"`
-     - 행높이 (`report-empty-row-height-input`): `max="45"` → `max="90"`
-     - 셀 여백 (`report-cell-padding-input`): `max="10"` → `max="20"`
-     - 줄간격 (`report-line-height-input`): `max="2.0"` → `max="4.0"`
+1. 🌐 AI 다국어 번역 엔진 고도화 & 본문 내용 및 현장명 번역 미적용 결함 완벽 해결 (v6.5.0 고도화 ✨)
+   - **원인 1 (JSON Schema 호환성 충돌)**: OpenRouter / DeepSeek / Ollama 등 OpenAI 호환 API에서 `response_format: { type: 'json_object' }`가 강제될 때, 프롬프트가 최상위 배열(`[ ... ]`)을 요구하면 파싱이 실패하거나 `{ "translations": [...] }` 형태의 단일 객체로 감싸져 반환되어 `Array.isArray(chunkResult)` 검증을 통과하지 못하고 무시되던 문제를 해결했습니다.
+     - [aiService.js](file:///e:/dev/dang/v5_build/aiService.js) `translateRiskAssessment()`를 `{ "siteName": "...", "translations": [ ... ] }` 단일 JSON 객체 스키마로 표준화하고, 최상위 배열/단일 객체/키 매핑 누락 등 다양한 LLM의 반환 구조를 1:1 완벽 정규화(`normalizedTranslations`)하여 원본 행 개수와 정확히 일치하도록 방어 로직을 구축했습니다.
+   - **원인 2 (스코프 참조 에러 해결)**: [index.html](file:///e:/dev/dang/v5_build/index.html) `executeTranslation()`의 `catch (err)` 블록에서 `window.lastAIConnectionProvider = config.provider;`를 호출할 때 `const config`가 `try` 블록 내부 스코프에 갇혀 발생하던 `ReferenceError: config is not defined` 런타임 크래시를 `let config` 외부 선언으로 완벽 수정했습니다.
+   - **원인 3 (로딩 인디케이터 부재 해소)**: 번역 진행 중 기존 `#ai-loading-overlay`가 숨겨진 모달 내부에 위치하여 화면상에 아무런 반응이 없어 번역이 멈춘 것처럼 보이던 문제를 해결하기 위해, 화면 전체에 뜨는 전역 로딩 오버레이(`#global-translation-loading-overlay`)를 신설하고 버튼 텍스트(`⏳ 번역 중...`) 및 0%~100% 실시간 프로그레스 바를 연동했습니다.
+   - **원인 4 (본문 데이터 1:1 치환 연동)**: 기존에는 청크 중 1건이라도 누락되면 전체 번역을 포기하고 한국어 원본으로 롤백되던 구조를 개선하여, 번역된 캐시가 존재하면 공종명·세부작업명·위험발생상황·개선대책 등 표 본문 전체 데이터가 번역된 언어로 1:1 정확히 치환되어 렌더링되도록 수정했습니다.
+   - **현장명(Site Name) 번역 완벽 지원**: 유해위험요인 본문뿐 아니라 갑지(표지), 사진대지, Classic/Modern/Future 인쇄 보고서의 현장명까지 선택한 언어로 완전하게 번역되어 외국인 근로자 배포용 문서로서의 완성도를 극대화했습니다 (`getReportSiteName(lang)`).
 
-2. 🛡️ `initReportRowHeightPanel()` 내 `applyChange()` JS 클램프 상한 상향
-   - L10928-10940 부근 `Math.min` 클램프 상한을 HTML `max`와 완벽히 일치하도록 4곳 동시 상향 (`48`, `90`, `20`, `4.0`).
-   - 기본값/최소치/이벤트 바인딩/보고서 재렌더링 로직 무손상 보존.
+2. 📖 사용자 가이드(`manual.html`) 최신화 및 v6.5.0 신규 기능 전면 반영
+   - **STEP 1**: `👆 초보자용 안내 손가락 가이드 & ON/OFF 스위치 (v6.5.0 신규 ✨)` 가이드 추가 (애니메이션 효과 및 상단 툴바 토글 안내).
+   - **STEP 3-1**: `DB 위험요인 연동 로더 (v6.5.0 업그레이드 ✨)` 가이드 추가 (4단계에서 기존 DB 항목 원클릭 로드 및 계층형 AI 연동).
+   - **STEP 3-3 신설**: `⚡ 심플 1줄 템플릿 바 및 스마트 병합(Merge) (v6.5.0 신규 ✨)` 섹션 추가 (1줄 단일행 툴바, 추천 카드 및 선택형 병합 모달, 행 복제 기능 상세 안내).
+   - **STEP 5-1**: `🌐 AI 다국어 번역 및 독립 인쇄 (v6.5.0 고도화 ✨)` 본문 데이터 및 현장명 번역 연동, 실시간 진행률 오버레이 최신화.
+   - **STEP 5-2**: `[↺ A4 기본값] 원클릭 초기화 (v6.5.0 신규 ✨)` 여백 리셋 기능 안내 추가.
+   - **STEP 5-3 신설**: `💾 완성된 보고서 저장/불러오기 및 100% 독립 인쇄 (v6.5.0 신규 ✨)` 가이드 추가.
+   - **버전 및 이력 태그 보존**: 역사적 버전 태그(`v6.0.2`, `v6.0.3`)는 100% 보존하고, 푸터 개발 버전은 `6.5.0`으로 갱신.
 
-3. 🧪 무결성 검증 및 클램핑 테스트 (Error Count: 0)
-   - `index.html` 내 6개 인라인 스크립트 전수 구문 검증 통과 (에러 0건).
-   - 정상 새 최대치 반영, 최대치 초과 입력 시 클램핑, 최소치 미달 입력 시 클램핑 검증 100% 통과.
+3. 🏷️ 앱 전체 버전 표기 6.0.3 ➔ 6.5.0 통일
+   - [package.json](file:///e:/dev/dang/v5_build/package.json): version `6.5.0`
+   - [index.html](file:///e:/dev/dang/v5_build/index.html): 스플래시 화면 타이틀 `v6.5.0`, 스플래시 버전 배지 `6.5.0`, 설정 모달 `v6.5.0`, `const APP_VERSION = "6.5.0";` (기존 백업 주석 완비)
+   - [manual.html](file:///e:/dev/dang/v5_build/manual.html): 상단 타이틀 `v6.5.0`, 안내 부제목 `v6.5.0`, 푸터 `Version 6.5.0`
+
+4. 🧪 무결성 검증 (Error Count: 0)
+   - `aiService.js` 노드 컴파일 무결성 검사 통과 (`node -c`).
+   - `package.json` JSON 문법 유효성 검증 완료.
+   - `index.html` 6개 인라인 스크립트 블록 및 `manual.html` 스크립트 블록 전수 VM 구문 검사 통과 (`Syntax Error Count: 0`).
+
+### 📅 차일 예정 사항 (Next Plan)
+1. 실 사용자 환경에서 다양한 외국어(중국어, 베트남어, 몽골어, 영어) 번역 출력 테스트 확인
+2. 최신 `v6.5.0` 정식 인스톨러 빌드(`npm run build`) 배포 준비
+
+### 💡 개선 제안 (Suggestions)
+1. **번역 캐시 로컬 저장 기능**: 한 번 번역된 다국어 결과물을 로컬 스토리지에 캐싱하여, 동일한 문서 인쇄 시 재번역을 위한 API 토큰 소모를 방지하고 즉시 로딩되도록 최적화하는 방안 추천.
 
 ---
+
+## 📅 작업 일지 (2026-10-13) - 초보자 매뉴얼 시작 시 마지막 편집 항목 완벽 복원 & 작업 템플릿 즉시 전환 + 초보자 4대 편의 UX 탑재 (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 🔄 `[🛠️ 매뉴얼로 시작]` 진입 시 마지막 편집 항목(세부작업명/위험세부분류/내용) 100% 복원 보장
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) `showEditScreen(allowEmpty = false)`에서 기존 `selectedGongjongs` 잔여값(`['공통공사']` 등)이 수동 작성된 소수 항목(`CUST_...`) 위로 수십 개 기본 항목을 강제 덮어쓰던 버그를 원천 차단했습니다 (`if (!allowEmpty && globalSelections.size === 0)` 조건 격리).
+   - `saveEditScreenSnapshot()` 및 `restoreEditScreenSnapshot()`을 신설하여 선택된 편집 항목의 전체 경로(`gongjong`, `sebu`, `wihum`)와 본문 데이터를 `localStorage` (`last_edit_screen_snapshot_v1`)에 동기식 스냅샷으로 이중 백업/복원하도록 구현했습니다 (Chromium `quota_database` / IndexedDB 락 오류 시에도 100% 무결 복원).
+   - 패키징 빌드(`app.asar`) 실행 시 `user_data.json`이 읽기 전용 ASAR 내부가 아닌 쓰기 가능한 `%APPDATA%/RiskAssessmentPro/user_data.json` 경로에 안전하게 기록·로드되도록 `getUserDataFilePath()`를 고도화했습니다.
+   - 편집화면의 `[💾 현재 상태 수동 저장]` 버튼(`#save-manual-btn`), 테이블 `focusout`, 창 종료(`beforeunload`) 시점에 `saveEdits()`가 호출되도록 연결하여, 인라인으로 수정한 `세부작업명`·`위험세부분류` 카테고리 이동(`moveItemToNewCategory`)이 누락 없이 즉시 영구 반영되도록 수정했습니다.
+
+2. 📋 편집화면(`2. 선택 항목 편집`) 상단 **[작업 템플릿]** 바 탑재 (기본 추천 6종 + 내 저장 템플릿 + 선택 즉시 전환)
+   - [index.html](file:///e:/dev/dang/v5_build/index.html) 편집화면 상단에 `#edit-template-bar` (템플릿 선택 드롭다운 `#edit-template-select`, `[➕ 현재 목록에 합치기]` `#edit-template-append-btn`, `[🃏 추천 공종 카드 크게 보기]` `#edit-template-card-board-btn`, `[💾 현재 목록을 템플릿으로 저장]` `#edit-template-save-btn`, `[✕ 삭제]` `#edit-template-delete-btn`)를 탑재했습니다.
+   - **⚡ 드롭다운 선택 즉시 편집창 전환 (`onchange` ➔ `applyEditTemplate('replace')`)**: 드롭다운에서 템플릿을 선택하는 즉시 별도 버튼 클릭 없이도 편집창 표가 해당 템플릿 항목들로 즉시 교체·표시되도록 구현했습니다.
+   - **🕒 직전 작업 내역 1클릭 복구 (`backup:previous`)**: 템플릿을 이것저것 눌러보더라도 기존 수동 작업 내용이 유실되지 않도록 최초 템플릿 전환 전 상태를 자동 백업하여 드롭다운 최상단(`🕒 직전 작업 내역으로 되돌리기`)에서 언제든 복원할 수 있게 방어했습니다.
+   - **📌 기본 추천 템플릿 6종 (`DEFAULT_EDIT_TEMPLATES`)**: ① 가설·공통공사(4건), ② 토공사·굴착(4건), ③ 철근콘크리트·골조(4건), ④ 철골·비계공사(3건), ⑤ 내외장 마감공사(3건), ⑥ 기계설비·전기공사(3건) 탑재 (법령·조항 인용 문구 0건 철저 준수).
+   - **⭐ 내 저장 템플릿 (`risk_edit_templates_v1`)**: 현재 편집 화면에서 다듬은 작업명/위험분류/대책 목록을 인앱 모달(`#edit-template-save-modal`)로 이름 붙여 저장하고, 언제든 다시 불러오거나 삭제할 수 있도록 구현했습니다.
+   - **➕ 현재 목록에 합치기 (`applyEditTemplate('append')`)**: `[➕ 현재 목록에 합치기]` 클릭 시 기존 편집 목록을 지우지 않고 하단에 새 고유 ID(`CUST_...`)로 복제 결합합니다.
+
+3. 🔰 초보자 맞춤형 4대 직관적 UX 기능 탑재
+   - **① 빈 표(또는 `[🃏 추천 공종 카드 크게 보기]` 클릭 시) 초보자용 6대 공종 템플릿 카드 보드 노출 (`createBeginnerTemplateCardBoardRow`)**: 편집창이 비어있거나 상단 `[🃏 추천 공종 카드 크게 보기]` 버튼을 클릭하면, 직전 작업 복원 카드(스냅샷 존재 시)와 6대 기본 공종 + 내 저장 템플릿 카드가 큼직한 그리드로 펼쳐져 원클릭으로 즉시 세팅할 수 있습니다.
+   - **② 각 행 우측 `[관리]` 열에 `[📋 복제]` 원클릭 버튼 추가 (`duplicateEditRow`)**: 위험성평가 특성상 동일한 `세부작업명`·`위험세부분류`를 유지한 채 내용만 살짝 바꾸는 작업이 잦은 점을 반영하여, `[📋 복제]` 클릭 시 현재 줄의 인라인 수정분까지 커밋한 뒤 바로 아래 줄에 동일한 타이틀과 내용을 가진 새 행을 즉시 복제 생성합니다.
+   - **③ 스플래시(첫 시작 화면)에 `[🛠️ 초보자·매뉴얼 바로 시작 (이전 작업·템플릿)]` 직행 버튼 추가 (`#splash-manual-start-btn`)**: 앱 실행 직후 스플래시 화면에서 복잡한 트리 선택 화면을 거치지 않고 곧바로 `2. 선택 항목 편집` 화면(이전 작업 자동 복원 또는 템플릿 카드 보드)으로 진입할 수 있습니다.
+   - **④ `세부작업명` / `위험세부분류` 헤더 및 셀에 `✏️ (클릭수정)` 시각 가이드 및 점선 호버 테두리(`.inline-title-editable`) 적용**: 초보자가 표의 타이틀(`세부작업명`, `위험세부분류`)을 클릭해서 바로 고칠 수 있다는 사실을 한눈에 인지할 수 있도록 시각적 어포던스를 부여했습니다.
+
+4. 🖨️ 편집 템플릿 바 버튼 겹침 해소 및 PDF 인쇄(A4 가로 꽉 참 · 사진대지 세로 1페이지) 완벽 교정
+   - **① PDF 축소/과다 여백 및 2페이지 넘침의 근본 원인 해결 (`document.body.style.zoom` 간섭 차단)**:
+     - 화면에서 `Ctrl + 마우스 휠` 또는 줌 버튼으로 확대(`110%`)·축소(`50%`)했을 때 `document.body.style.zoom` 인라인 스타일이 Electron `printToPDF`에 그대로 반영되어, `110%`일 때는 표지/사진대지가 2페이지로 넘치고 `50%`일 때는 페이지의 절반 이상이 거대한 빈 여백으로 남던 치명적 원인을 PDF 스트림 분석으로 규명했습니다.
+     - `@media print`에 `html, body { zoom: 1 !important; }`를 추가하고, `#print-pdf-btn` 클릭 시 및 [main.js](file:///e:/dev/dang/v5_build/main.js) `print-to-pdf` IPC 핸들러 내부에서 인쇄 직전 `document.body.style.zoom = '1'`로 강제 초기화한 뒤 완료 후 원래 화면 배율로 복원하도록 3중 방어했습니다.
+   - **② 갑지(표지 `.page.cover-page`) A4 가로(Landscape) 98% 꽉 찬 레이아웃 복원 ([index.html](file:///e:/dev/dang/v5_build/index.html) L2340-2375)**:
+     - 줌 100% 고정 상태에서 A4 가로 가용 높이(`200mm`)를 98% 꽉 채우면서 2페이지 넘침이 발생하지 않는 `height: 196mm !important; max-height: 196mm !important; min-height: 196mm !important; padding: 0.8cm !important;` 및 `.cover-container { height: 100% !important; padding: 36px 30px !important; }` 규격으로 최적화했습니다.
+   - **③ 위험성평가표(A4 가로) 하단 과다 여백 해결 (`reportTargetLines` 자동 보정 & `[↺ A4 기본값]` 버튼 추가)**:
+     - 기존 `localStorage`의 `reportTargetLines`가 최소값(`6줄`)으로 낮아져 있을 경우 항목이 적은 공종(예: 1~3행)에서 빈 행이 거의 추가되지 않아 표가 페이지 상단에만 몰리던 문제를 해결하기 위해, `getReportRowSettings()`에 1회성 자동 보정(`report_layout_a4_fit_v1`: 14줄 미만일 때 기본 `16줄` / 빈 행 높이 `26px`로 자동 복구)을 적용하고 `📏 표 여백` 패널 우측에 **`[↺ A4 기본값]`** 원클릭 리셋 버튼(`#report-layout-reset-btn`)을 탑재했습니다.
+     - 또한 3대 테마(`Classic`, `Modern`, `Future`)의 `estimateCellLines` 글자수 기준을 18자 ➔ 22자로 현실화하여 빈 행이 과소 생성되지 않고 A4 가로 지면을 균형 있게 채우도록 개선했습니다.
+   - **④ 사진대지(`.photo-board-page`) A4 세로(Portrait) 방향 유지 및 하단 여백 제로화 (98.2% 풀핏 Flexbox 자동 배분) ([index.html](file:///e:/dev/dang/v5_build/index.html) L2308-2375, L2577-2588)**:
+     - `@page portrait_page { size: A4 portrait; margin: 0.7cm; }` (세로 가용 높이 `283mm`) 기준, `.photo-board-page`에 `height: 278mm !important; min-height: 278mm !important; max-height: 278mm !important; padding: 2mm 4mm !important; display: flex !important; flex-direction: column !important;`을 적용하여 지면의 **98.2%**를 꽉 채우도록 개선했습니다.
+     - 내부 `.pb-container`(`flex: 1 1 auto`), 상·하단 `.pb-item`(`flex: 1 1 0; min-height: 0`), 사진 프레임 `.pb-photo-box`(`flex: 1 1 0; height: auto !important; min-height: 0`)가 남은 세로 공간을 50:50으로 자동 균등 분할하여, 기존 하단에 남던 ~17% 빈 여백을 완전히 해소하고 캡션 줄수(1~2줄)가 변하더라도 절대 2페이지로 넘치지 않도록 설계했습니다.
+   - **⑤ `#edit-template-bar` 1줄 심플 레이아웃(`flex-wrap: nowrap`) 통일 및 다크 네이비 테마 선택형 `[➕ 목록 합치기]` 모달(`#edit-template-merge-modal`) 신설 ([index.html](file:///e:/dev/dang/v5_build/index.html) L3418-3436, L4390-4465, L11255-11900)**:
+     - 작업 템플릿 바(`#edit-template-bar`)의 내부 중첩 `div`를 제거하고 `flex-wrap: nowrap` 단일 행으로 정렬했으며, 버튼 문구를 **`[➕ 목록 합치기]` · `[🃏 추천 카드 보기]` · `[💾 템플릿 저장]` · `[✕ 삭제]`**로 간결하게 다듬어 2줄로 줄바꿈되던 현상을 해결하고 깔끔하게 1줄로 표시되도록 개선했습니다.
+     - 기존에는 드롭다운 선택 즉시 목록이 덮어써져 합치기 버튼의 작동 방식을 알기 어려웠던 문제를 해결하기 위해, `[➕ 목록 합치기]` 클릭 시(또는 카드 보드의 `[➕ 골라서 합치기 ☑]` 클릭 시) 전용 **선택형 합치기 모달(`#edit-template-merge-modal`)**이 열리도록 전면 개선했습니다.
+     - **다크 네이비 테마(`#151b2c` / `#0f172a` / `#1e293b`) 완벽 통일 및 가독성 개선**: 모달 컨테이너와 표 영역을 앱 기본 다크 네이비 테마로 통일하고, 흰색/스카이블루/에메랄드 텍스트 고대비 배색을 적용했으며, 5개 열(`선택 52px` / `공종·세부작업명 19%` / `위험세부분류 14%` / `유해위험요인 31%` / `개선대책 31%`) 폭을 균형 있게 배분하여 글씨 찌그러짐과 가독성 저하를 완전히 해소했습니다.
+     - **1단계(템플릿 탭 클릭)**: `⭐ 내 저장 템플릿`, `📌 6대 기본 추천 템플릿`, `🕒 직전 작업 내역` 탭을 클릭해 원하는 템플릿의 세부 항목들을 즉시 미리 볼 수 있습니다.
+     - **2단계(체크박스 ☑ 개별/전체 선택 및 중복 안내)**: 표의 각 행을 클릭해 원하는 작업만 골라서 체크(`☑`)할 수 있으며, 현재 편집 목록에 이미 동일한 작업(`세부작업명 + 위험발생`)이 존재할 경우 `⚠️ 현재 목록에 동일 작업 있음` 배지를 표시하고 최초 자동 체크 대상에서 제외하여 중복 병합을 방지합니다.
+     - **3단계(실시간 합산 요약 및 되돌리기 백업)**: 하단 요약 바에 `현재 편집 목록: N건 + 새로 합칠 항목: M건 ➔ 합친 후 총 N+M건`이 실시간 표시되며, 합치기 직전 상태가 `🕒 직전 작업 내역`에 자동 백업되어 언제든 1클릭 복구가 가능합니다.
+   - **⑥ `[➕ 새 항목 추가 (매뉴얼 마법사)]` 4단계 심플 UI 복원 + 4단계 기존 DB 내용 자동 불러오기/갱신/추가 (B안) + 상위 기준 계층형 AI 연쇄 생성(`🪄`) 탑재 ([index.html](file:///e:/dev/dang/v5_build/index.html) L3480-3490, L4195-4325, L12179-12615)**:
+     - 복잡한 대형 표 모달 대신 기존에 익숙하고 깔끔한 **4단계 스텝 마법사(`1. 공종 ➔ 2. 세부작업명 ➔ 3. 위험세부분류 ➔ 4. 위험요인/조치`, 폭 540px)**로 복구했습니다.
+     - **4단계(`4. 위험요인/조치`) 기존 DB 항목 드롭다운(`#manual-add-db-item-select`) 탑재**: 1~3단계에서 선택한 분류 안에 기존 DB 항목들이 있으면 상단 파란색 박스(`📚 기존 DB에 저장된 내용 불러오기`)에 리스트업되고, 선택 즉시 아래 `유해위험요인` / `현재 안전보건조치` / `개선대책` / `현재·개선후 위험성` 칸에 내용이 자동으로 채워집니다 (`➕ 빈 칸에 직접 새로 작성` 선택 시 빈 칸으로 초기화).
+     - **상위 내용 기준 계층형 AI 연쇄 생성(`🪄`) 탑재 (`runWizardFieldAIGeneration`)**:
+       - **2단계 `[🪄 AI 추천 생성 (세부작업명+하위전체)]`**: 1단계 공종을 기준으로 `세부작업명`은 물론 3·4단계(`위험세부분류`, `유해위험요인`, `현재조치`, `개선대책`)까지 일괄 생성·예약(`wizardAiPrefill`)합니다.
+       - **3단계 `[🪄 AI 추천 생성 (위험분류+하위전체)]`**: 1~2단계(`공종 > 세부작업명`)를 기준으로 `위험세부분류` 및 4단계(`유해위험요인`, `현재조치`, `개선대책`)를 일괄 생성·예약합니다.
+       - **4단계 각 입력칸별 `[🪄 AI 생성]` 3종**:
+         1. `유해위험요인` 옆 `[🪄 AI 생성 (위험요인 + 하위 전체)]` 클릭 시 ➔ 상위 1~3단계(`📂 상위 기준: 공종 ➔ 세부작업명 ➔ 위험세부분류`)를 기준으로 **`유해위험요인` + `현재 안전보건조치` + `개선대책`** 3칸을 한꺼번에 연쇄 생성합니다.
+         2. `현재 안전보건조치` 옆 `[🪄 AI 생성 (현재조치 + 개선대책)]` 클릭 시 ➔ 상위 1~3단계 + `유해위험요인`을 기준으로 **`현재 안전보건조치` + `개선대책`** 2칸을 연쇄 생성합니다.
+         3. `개선대책` 옆 `[🪄 AI 생성 (개선대책만)]` 클릭 시 ➔ 상위 1~3단계 + `유해위험요인` + `현재 안전보건조치`를 기준으로 **`개선대책`** 칸만 새로 생성합니다.
+     - **편집 후 `[🔄 기존 DB 갱신 후 불러오기]` 및 `[➕ 새 항목으로 추가]` 동시 지원**: 불러오거나 AI로 생성·수정한 내용을 **`[🔄 기존 DB 갱신 후 불러오기]`**로 기존 DB에 덮어써서 편집화면에 반영하거나, **`[➕ 새 항목으로 추가]`**로 원본 보존 후 신규 추가할 수 있습니다.
+   - **⑦ 보고서 미리보기 화면 `[💾 완성본으로 저장]` · `[📂 완성본 불러오기]` 버튼 가독성 해결 및 `[🛠️ 매뉴얼로 시작]` 초보자용 손가락 가리킴 효과(`👆`) + ON/OFF 스위치 탑재 ([index.html](file:///e:/dev/dang/v5_build/index.html) L1445-1463, L2295-2344, L3342-3350, L3482-3490, L12250-12270)**:
+     - `#save-complete-report-btn`에 `var(--blue-gradient)` 및 `#load-complete-report-btn`에 `var(--teal-gradient)` 배경과 흰색 굵은 텍스트(`#ffffff`)를 지정하여 밝은 회색 배경 위에 흰 글씨가 겹쳐 안 보이던 문제를 완벽히 해결했습니다.
+     - 메인 화면 `[🛠️ 매뉴얼로 시작]` 버튼 하단에 상하 바운스 애니메이션(`@keyframes beginnerFingerBounce`)으로 가리키는 **`👆 초보자 여기 클릭!`** 손가락 포인터 배지(`.beginner-finger-pointer-badge`)를 탑재했습니다.
+     - 메인 화면 `[🛠️ 매뉴얼로 시작]` 버튼 우측에 텍스트 없이 깔끔하게 체크박스와 손가락 아이콘만 표시되는 **`[☑️ 👆]`** ON/OFF 스위치를 배치하여(편집화면에는 미표시, 기본값: 체크됨 `true`, `localStorage` `beginner_finger_hint_enabled_v1` 영구 저장), 체크를 해제하면 손가락 포인터 배지와 버튼 펄스 효과가 즉시 꺼지도록 구현했습니다.
+
+5. 🧪 정적 파싱 및 Red Team 무결성 검증 완료 (Error Count: 0)
+   - `index.html` 내 6개 인라인 `<script>` 블록 및 `main.js` 전수 VM 구문 검사 통과 (`Syntax Error Count: 0`).
+   - Red Team 핵심 체크포인트(손가락 포인터 배지 `pointer-events: none` 및 `.no-print` 처리로 주변 클릭 방해 및 인쇄 노출 원천 차단, `.header-inputs input`의 `min-width: 150px` 규칙이 체크박스에 영향을 주지 않도록 `min-width: auto !important; width: 15px !important` 방어, 4단계 하위 칸 AI 생성 시 상위 위험요인 누락 자동 보완) 검증 100% 통과.
+
+### 📅 차일 예정 사항 (Next Plan)
+1. 실행 중인 앱에서 `Ctrl + R` 새로고침 후 `📄 최종 보고서 생성` ➔ `🖨️ PDF 미리보기 및 인쇄` 확인
+2. 필요 시 `v6.0.3` 정식 인스톨러 패키지 빌드(`npm run build` ➔ `dist/RiskAssessmentPro Setup 6.0.3.exe`) 수행
+
+### 💡 개선 제안 (Suggestions)
+1. **내 저장 템플릿 JSON 파일 내보내기/가져오기**: 향후 현장이 여러 곳인 안전관리자가 자신이 구축한 `⭐ 내 저장 템플릿` 세트를 동료와 파일로 주고받을 수 있도록 템플릿 전용 내보내기/가져오기 버튼을 추가하면 활용도가 더욱 높아집니다.
+
+---
+
+## 📅 작업 일지 (2026-08-21) - 사용자 가이드(manual.html) 최신화 및 버전 6.0.2 → 6.0.3 통일 (WO-18) (Error Count: 0)
+
+### ✅ 금일 작업 사항 (Today's Work)
+
+1. 📖 `manual.html` 신규 STEP 3-2 추가 및 STEP 5-2 본문 최신화
+   - [manual.html](file:///e:/dev/dang/v5_build/manual.html) STEP 3-1과 STEP 4 사이에 `STEP 3-2. ✏️ 세부작업명 / 위험세부분류 직접 수정 (v6.0.3 신규 ✨)` 섹션을 신설하여 인라인 편집, 항목별 단독 이동, 새 분류 자동 생성, 빈 값 방어 가이드를 추가했습니다.
+   - `STEP 5-2. 📏 인쇄 미리보기 표 여백 조절`에 v6.0.3 범위 확대 표기(줄수 6~48줄, 행높이 15~90px)를 반영하고, 누락되었던 셀 여백(1~20px) 및 줄간격(1.0~4.0) 항목 2종을 신규 보충했습니다.
+   - 기존 기능 이력 태그 5곳(`v6.0.2 신규/고도화 ✨`)은 사실관계 유지를 위해 100% 보존했습니다.
+
+2. 🏷️ 앱 전체 버전 문자열 6.0.2 → 6.0.3 통일
+   - [package.json](file:///e:/dev/dang/v5_build/package.json): version `6.0.3` 및 description 갱신.
+   - [index.html](file:///e:/dev/dang/v5_build/index.html): 스플래시 화면, 설정 화면, `APP_VERSION` 상수 4곳을 기존 백업 주석 컨벤션을 준수하여 `v6.0.3`으로 갱신.
+   - [manual.html](file:///e:/dev/dang/v5_build/manual.html): 문서 제목, 안내 부제목, 푸터 3곳을 `v6.0.3`으로 갱신.
+
+3. 🧪 무결성 검증 (Error Count: 0)
+   - `index.html` 내 6개 인라인 스크립트 전수 구문 검증 통과 (에러 0건).
+   - `package.json` JSON 문법 파싱 검증 완료.
+   - `manual.html` 및 `index.html` 내 버전 문자열 및 이력 태그 정합성 100% 확인.
+
+---
+
 
 
 

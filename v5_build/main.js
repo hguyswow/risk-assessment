@@ -49,9 +49,18 @@ app.on('window-all-closed', function () {
 ipcMain.on('print-to-pdf', async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
+        try {
+            await win.webContents.executeJavaScript("window.__mainPrintZoom = document.body.style.zoom; document.body.style.zoom = '1';");
+        } catch (e) {}
+        // [기존 코드 보존] const pdfData = await win.webContents.printToPDF({ printBackground: true });
         const pdfData = await win.webContents.printToPDF({
-            printBackground: true
+            printBackground: true,
+            preferCSSPageSize: true
         });
+        try {
+            await win.webContents.executeJavaScript("if (window.__mainPrintZoom !== undefined) { document.body.style.zoom = window.__mainPrintZoom; delete window.__mainPrintZoom; }");
+            win.webContents.send('pdf-done');
+        } catch (e) {}
         const tempPath = path.join(os.tmpdir(), `report_preview_${Date.now()}.pdf`);
         fs.writeFileSync(tempPath, pdfData);
         shell.openPath(tempPath);

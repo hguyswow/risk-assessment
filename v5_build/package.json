@@ -1,7 +1,7 @@
 {
     "name": "risk-assessment-app",
-    "version": "6.0.2",
-    "description": "Risk Assessment Application v6.0.2 - Emergency patch: ban law citation hallucination",
+    "version": "6.5.0",
+    "description": "Risk Assessment Application v6.5.0 - 다국어 AI 본문/현장명 번역 엔진 고도화, 템플릿 바 및 매뉴얼 마법사",
     "main": "main.js",
     "scripts": {
         "start": "electron .",
